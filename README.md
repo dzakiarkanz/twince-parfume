@@ -7,7 +7,7 @@ Website parfum premium dengan fitur:
 - Scent Finder quiz
 - CTA order WhatsApp
 
-Project ini cocok untuk latihan frontend modern di 2026 karena sudah menyentuh UI polish, interaction UX, SEO dasar, dan readiness deployment.
+Project ini cocok untuk website modern di 2026 karena sudah menyentuh UI polish, interaction UX, SEO dasar, dan readiness deployment.
 
 ## Struktur Project
 - `app/layout.tsx`: root layout, metadata SEO, schema JSON-LD, dan konfigurasi global halaman.
