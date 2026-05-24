@@ -45,8 +45,16 @@ export function ToastContainer() {
   return <div id="toast-container" className="fixed top-5 right-5 z-50 flex max-w-sm w-full flex-col gap-3 pointer-events-none px-4" aria-live="polite" aria-atomic="true" />;
 }
 
-// 1. NAVBAR (Sekarang menerima data jumlah item di keranjang secara Real-time)
+// 1. NAVBAR (Sekarang menggunakan Looping Menu & Animasi Garis Bawah Premium dari Tengah)
 export function NavBar({ cartCount, onSearchClick }: NavBarProps) {
+  // Array menu navigasi agar tidak perlu menulis kode link berulang-ulang
+  const menuItems = [
+    { name: 'Koleksi', href: '#koleksi' },
+    { name: 'Filosofi', href: '#philosophy' },
+    { name: 'Scent Finder', href: '#quiz' },
+    { name: 'Tentang', href: '#tentang' },
+  ];
+
   return (
     <nav className="fixed top-0 left-0 w-full z-40 glass-nav transition-all duration-300 ease-in-out">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -54,12 +62,20 @@ export function NavBar({ cartCount, onSearchClick }: NavBarProps) {
           <span className="font-serif text-2xl tracking-[0.25em] text-black font-bold">TWINCE</span>
           <span className="text-[8px] tracking-[0.5em] text-zinc-700 uppercase">Extrait De Parfume</span>
         </a>
+
+        {/* --- TOMBOL NAVIGASI DENGAN MOTIF GARIS BEKERJA DARI TENGAH --- */}
         <div className="hidden md:flex items-center space-x-10 text-xs tracking-[0.2em] uppercase font-semibold">
-          <a href="#koleksi" className="text-black transition-all duration-300 ease-in-out hover:opacity-70">Koleksi</a>
-          <a href="#philosophy" className="text-black transition-all duration-300 ease-in-out hover:opacity-70">Filosofi</a>
-          <a href="#quiz" className="text-black transition-all duration-300 ease-in-out hover:opacity-70">Scent Finder</a>
-          <a href="#tentang" className="text-black transition-all duration-300 ease-in-out hover:opacity-70">Tentang</a>
+          {menuItems.map((item) => (
+            <a
+              key={item.name}
+              href={item.href}
+              className="text-black relative py-1 focus:outline-none transition-colors duration-300 after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-[1px] after:bottom-0 after:left-0 after:bg-black after:origin-center after:transition-transform after:duration-300 hover:after:scale-x-100"
+            >
+              {item.name}
+            </a>
+          ))}
         </div>
+
         <div className="flex items-center space-x-6 text-black">
           <button onClick={onSearchClick} id="search-btn" aria-label="Search perfumes" className="transition-all duration-300 ease-in-out hover:opacity-70 hover:-translate-y-0.5 focus:outline-none" type="button">
             <i className="fa-solid fa-magnifying-glass text-lg" />
@@ -77,7 +93,6 @@ export function NavBar({ cartCount, onSearchClick }: NavBarProps) {
     </nav>
   );
 }
-
 export function MobileMenu() {
   return (
     <div id="mobile-menu" className="fixed inset-0 bg-white/95 backdrop-blur-md border-l border-black/15 z-50 transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col justify-between p-8 md:hidden" aria-hidden="true">
