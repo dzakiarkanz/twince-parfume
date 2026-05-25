@@ -69,7 +69,7 @@ export function NavBar({ cartCount, onSearchClick }: NavBarProps) {
             <a
               key={item.name}
               href={item.href}
-              className="text-black relative py-1 focus:outline-none transition-colors duration-300 after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-[1px] after:bottom-0 after:left-0 after:bg-black after:origin-center after:transition-transform after:duration-300 hover:after:scale-x-100"
+              className="nav-link text-zinc-200 hover:text-white relative py-1 focus:outline-none transition-all duration-300 after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-[1px] after:bottom-0 after:left-0 after:bg-white after:origin-center after:transition-transform after:duration-300 hover:after:scale-x-100 hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.38)] focus-visible:text-white focus-visible:after:scale-x-100"
             >
               {item.name}
             </a>
@@ -103,10 +103,10 @@ export function MobileMenu() {
         </button>
       </div>
       <div className="flex flex-col space-y-8 text-lg tracking-[0.15em] uppercase font-serif py-12">
-        <a href="#koleksi" className="mobile-link text-black transition-all duration-300 ease-in-out hover:opacity-70">Koleksi</a>
-        <a href="#philosophy" className="mobile-link text-black transition-all duration-300 ease-in-out hover:opacity-70">Filosofi</a>
-        <a href="#quiz" className="mobile-link text-black transition-all duration-300 ease-in-out hover:opacity-70">Scent Finder</a>
-        <a href="#tentang" className="mobile-link text-black transition-all duration-300 ease-in-out hover:opacity-70">Tentang</a>
+        <a href="#koleksi" className="mobile-link text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white hover:shadow-lg hover:shadow-black/10 focus-visible:bg-black focus-visible:text-white">Koleksi</a>
+        <a href="#philosophy" className="mobile-link text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white hover:shadow-lg hover:shadow-black/10 focus-visible:bg-black focus-visible:text-white">Filosofi</a>
+        <a href="#quiz" className="mobile-link text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white hover:shadow-lg hover:shadow-black/10 focus-visible:bg-black focus-visible:text-white">Scent Finder</a>
+        <a href="#tentang" className="mobile-link text-black transition-all duration-300 ease-in-out hover:bg-black hover:text-white hover:shadow-lg hover:shadow-black/10 focus-visible:bg-black focus-visible:text-white">Tentang</a>
       </div>
       <div className="border-t border-black pt-6 text-center text-xs tracking-wider text-zinc-700">&copy; 2026 TWINCE Perfumes. All rights reserved.</div>
     </div>
@@ -205,12 +205,12 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
           {filteredProducts.map((product, index) => {
             const scentTone = scentToneMap[product.scentType.toLowerCase()] || '#E0A96D';
             return (
-              <div 
+              <div
                 key={product.id} 
                 className="product-card group bg-white/90 backdrop-blur-sm border border-black/15 rounded-2xl overflow-hidden shadow-xl hover:border-black/30 transition-all duration-500 ease-in-out flex flex-col justify-between reveal-item"
                 style={{ ['--reveal-delay' as any]: `${index * 80}ms` }}
               >
-                <div>
+                <div className="relative">
                   <div className="relative aspect-square overflow-hidden bg-white">
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.95]" />
                     <span style={{ ['--scent-tone' as any]: scentTone }} className="scent-chip absolute top-4 left-4 backdrop-blur-md border text-[10px] tracking-[0.22em] font-bold px-3 py-1 rounded-full uppercase text-black">{product.scentType}</span>
