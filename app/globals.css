@@ -181,6 +181,68 @@ body {
   transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
+.nav-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--theme-border);
+  background: color-mix(in srgb, var(--theme-surface) 86%, transparent);
+  color: var(--theme-text);
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
+}
+
+.nav-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--theme-text);
+  transition: transform 0.22s ease, color 0.22s ease, border-color 0.22s ease;
+}
+
+.nav-icon-btn:hover,
+.nav-icon-btn:focus-visible {
+  transform: translateY(-1px);
+  border-color: transparent;
+  color: var(--theme-text);
+}
+
+.nav-action-btn:hover,
+.nav-action-btn:focus-visible {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--theme-surface) 95%, transparent);
+  border-color: color-mix(in srgb, var(--theme-border) 72%, var(--theme-text) 28%);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+}
+
+.nav-login-btn {
+  position: relative;
+}
+
+.nav-login-btn i {
+  position: relative;
+}
+
+.theme-toggle.nav-action-btn {
+  border-color: color-mix(in srgb, var(--theme-border) 62%, var(--accent-woody) 38%);
+  box-shadow: 0 9px 20px rgba(0, 0, 0, 0.11);
+}
+
+.theme-toggle.nav-action-btn:hover,
+.theme-toggle.nav-action-btn:focus-visible {
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+}
+
 .theme-toggle:hover {
   transform: translateY(-1px);
   background: color-mix(in srgb, var(--theme-surface) 94%, transparent);
@@ -245,6 +307,11 @@ body {
 .product-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 20px 34px rgba(0, 0, 0, 0.14), 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.filter-card-enter {
+  animation: filterCardIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform, filter;
 }
 
 .filter-btn,
@@ -459,6 +526,20 @@ a {
   100% { opacity: 0; transform: scale(1.18); }
 }
 
+@keyframes filterCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
 @media (max-width: 1023px) {
   .floating-wa {
     right: 1rem;
@@ -497,5 +578,12 @@ a {
   .motion-ready .reveal-item {
     animation: none !important;
     transition: none !important;
+  }
+
+  .filter-card-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
   }
 }

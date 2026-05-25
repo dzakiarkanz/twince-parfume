@@ -87,6 +87,18 @@ h1, h2, h3, .brand-mark, .section-kicker {
 
 .nav-link:hover,
 .mobile-link:hover {
+    color: #ffffff;
+}
+
+[data-theme='light'] .nav-link,
+[data-theme='light'] .mobile-link {
+    color: #000000;
+}
+
+[data-theme='light'] .nav-link:hover,
+[data-theme='light'] .nav-link:focus-visible,
+[data-theme='light'] .mobile-link:hover,
+[data-theme='light'] .mobile-link:focus-visible {
     color: #000000;
 }
 
@@ -95,6 +107,10 @@ h1, h2, h3, .brand-mark, .section-kicker {
     border-radius: 1rem;
     padding: 0.95rem 1rem;
     background: #ffffff;
+}
+
+.mobile-link:hover {
+    background: #000000;
 }
 
 .menu-icon,

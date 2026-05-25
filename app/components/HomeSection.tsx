@@ -17,6 +17,7 @@ type Product = {
 type NavBarProps = {
   cartCount: number;
   onSearchClick: () => void;
+  onLoginClick: () => void;
 };
 
 type CollectionSectionProps = {
@@ -46,7 +47,7 @@ export function ToastContainer() {
 }
 
 // 1. NAVBAR (Sekarang menggunakan Looping Menu & Animasi Garis Bawah Premium dari Tengah)
-export function NavBar({ cartCount, onSearchClick }: NavBarProps) {
+export function NavBar({ cartCount, onSearchClick, onLoginClick }: NavBarProps) {
   // Array menu navigasi agar tidak perlu menulis kode link berulang-ulang
   const menuItems = [
     { name: 'Koleksi', href: '#koleksi' },
@@ -76,15 +77,22 @@ export function NavBar({ cartCount, onSearchClick }: NavBarProps) {
           ))}
         </div>
 
-        <div className="flex items-center space-x-6 text-black">
-          <button onClick={onSearchClick} id="search-btn" aria-label="Search perfumes" className="transition-all duration-300 ease-in-out hover:opacity-70 hover:-translate-y-0.5 focus:outline-none" type="button">
+        <div className="flex items-center space-x-3 text-black">
+          <button onClick={onLoginClick} id="login-btn" aria-label="Open login" className="nav-icon-btn nav-login-btn" type="button">
+            <i className="fa-solid fa-user-large text-[15px]" />
+          </button>
+
+          <button onClick={onSearchClick} id="search-btn" aria-label="Search perfumes" className="nav-icon-btn" type="button">
             <i className="fa-solid fa-magnifying-glass text-lg" />
           </button>
-          <button id="cart-btn" aria-label="Open cart" className="relative transition-all duration-300 ease-in-out hover:opacity-70 hover:-translate-y-0.5 focus:outline-none" type="button">
+
+          <button id="cart-btn" aria-label="Open cart" className="nav-icon-btn nav-cart-btn relative" type="button">
             <i className="fa-solid fa-bag-shopping text-xl" />
             <span id="cart-badge" className={`absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center transition-transform duration-300 ${cartCount > 0 ? 'scale-100' : 'scale-0'}`}>{cartCount}</span>
           </button>
+
           <ThemeToggle />
+
           <button id="mobile-menu-btn" aria-label="Open navigation menu" className="md:hidden transition-all duration-300 ease-in-out hover:opacity-70 hover:-translate-y-0.5 focus:outline-none" type="button">
             <i className="fa-solid fa-bars-staggered text-xl" />
           </button>
@@ -206,9 +214,9 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
             const scentTone = scentToneMap[product.scentType.toLowerCase()] || '#E0A96D';
             return (
               <div
-                key={product.id} 
-                className="product-card group bg-white/90 backdrop-blur-sm border border-black/15 rounded-2xl overflow-hidden shadow-xl hover:border-black/30 transition-all duration-500 ease-in-out flex flex-col justify-between reveal-item"
-                style={{ ['--reveal-delay' as any]: `${index * 80}ms` }}
+                key={`${activeFilter}-${product.id}`}
+                className="product-card filter-card-enter group bg-white/90 backdrop-blur-sm border border-black/15 rounded-2xl overflow-hidden shadow-xl hover:border-black/30 transition-all duration-500 ease-in-out flex flex-col justify-between reveal-item is-visible"
+                style={{ animationDelay: `${index * 55}ms` }}
               >
                 <div className="relative">
                   <div className="relative aspect-square overflow-hidden bg-white">

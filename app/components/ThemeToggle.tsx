@@ -39,7 +39,7 @@ export default function ThemeToggle() {
       aria-pressed={theme === "dark"}
       title="Toggle theme"
       onClick={toggle}
-      className="theme-toggle"
+      className="theme-toggle nav-action-btn"
     >
       {theme === "dark" ? (
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sun">

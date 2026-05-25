@@ -101,7 +101,11 @@ export default function Page() {
       const target = element as HTMLElement;
       target.classList.add('reveal-item');
       target.style.setProperty('--reveal-delay', `${index * 20}ms`);
-      observer.observe(target);
+    });
+
+    // Observe every reveal target, including product cards that already have `reveal-item`.
+    document.querySelectorAll('.reveal-item').forEach((element) => {
+      observer.observe(element);
     });
 
     // 4. Navbar Scroll Effect
@@ -232,7 +236,11 @@ export default function Page() {
   return (
     <>
       <ToastContainer />
-      <NavBar cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)} onSearchClick={() => showToast('Fitur pencarian eksklusif sedang dikembangkan.', 'info')} />
+      <NavBar
+        cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
+        onSearchClick={() => showToast('Fitur pencarian eksklusif sedang dikembangkan.', 'info')}
+        onLoginClick={() => showToast('Fitur login member premium segera hadir.', 'info')}
+      />
       <MobileMenu />
       <HeroSection />
       <PhilosophySection />
