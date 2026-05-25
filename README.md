@@ -52,6 +52,20 @@ Set URL domain production supaya metadata canonical/sitemap akurat.
 NEXT_PUBLIC_SITE_URL=https://domain-kamu.com
 ```
 
+Untuk GA4, tambahkan Measurement ID berikut di `.env.local` atau environment deployment:
+
+```text
+NEXT_PUBLIC_GA4_ID=G-XXXXXXXXXX
+```
+
+Event tracking yang aktif saat ini:
+- `search` saat ikon search ditekan
+- `login` saat ikon login ditekan
+- `view_item_list` saat filter koleksi berubah
+- `add_to_cart` saat produk masuk keranjang
+- `begin_checkout` saat checkout WhatsApp diproses
+- `generate_lead` saat lead order WhatsApp dibuat
+
 ## Roadmap Belajar (Pemula -> Siap Kerja)
 1. **Frontend Foundation**
 	Pahami komponen React, props, state, event, conditional rendering.

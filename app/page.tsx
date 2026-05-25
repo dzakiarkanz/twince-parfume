@@ -29,6 +29,80 @@ type Product = {
   desc: string;
 };
 
+type CartLine = {
+  product: Product;
+  quantity: number;
+};
+
+type AnalyticsEventName =
+  | 'search_click'
+  | 'login_click'
+  | 'filter_products'
+  | 'add_to_cart'
+  | 'begin_checkout'
+  | 'generate_lead';
+
+type Ga4Event = {
+  name: string;
+  params: Record<string, unknown>;
+};
+
+const GA4_EVENT_MAP: Record<AnalyticsEventName, (payload: Record<string, unknown>) => Ga4Event> = {
+  search_click: () => ({
+    name: 'search',
+    params: {
+      search_term: 'TWINCE perfume'
+    }
+  }),
+  login_click: () => ({
+    name: 'login',
+    params: {
+      method: 'member_button'
+    }
+  }),
+  filter_products: (payload) => ({
+    name: 'view_item_list',
+    params: {
+      item_list_name: String(payload.filter ?? 'Semua'),
+      item_list_id: `collection_${String(payload.filter ?? 'semua').toLowerCase()}`,
+      items: payload.items ?? []
+    }
+  }),
+  add_to_cart: (payload) => ({
+    name: 'add_to_cart',
+    params: {
+      currency: 'IDR',
+      value: payload.price ?? 0,
+      items: [
+        {
+          item_id: payload.productId,
+          item_name: payload.productName,
+          item_category: payload.scentType,
+          price: payload.price,
+          quantity: 1
+        }
+      ]
+    }
+  }),
+  begin_checkout: (payload) => ({
+    name: 'begin_checkout',
+    params: {
+      currency: 'IDR',
+      value: payload.subtotal ?? 0,
+      items: payload.items ?? []
+    }
+  }),
+  generate_lead: (payload) => ({
+    name: 'generate_lead',
+    params: {
+      method: String(payload.method ?? 'unknown'),
+      currency: payload.currency ?? 'IDR',
+      value: payload.value ?? 0,
+      items: payload.items ?? []
+    }
+  })
+};
+
 const PRODUCTS: Product[] = [
   {
     id: 'p1',
@@ -84,7 +158,7 @@ const QUIZ_DEFAULT = { step1: '', step2: '', step3: '' };
 
 export default function Page() {
   // --- REACT STATES (Menggantikan Manipulasi DOM Manual) ---
-  const [cart, setCart] = useState<Array<{ product: Product; quantity: number }>>([]);
+  const [cart, setCart] = useState<CartLine[]>([]);
   const [quizAnswers, setQuizAnswers] = useState(QUIZ_DEFAULT);
   const [activeFilter, setActiveFilter] = useState('Semua');
   const [waNumber, setWaNumber] = useState('6282123354047');
@@ -169,12 +243,27 @@ export default function Page() {
     }, 3500);
   };
 
-  const trackEvent = (eventName: string, payload: Record<string, unknown> = {}) => {
+  const buildCartItems = (lines: CartLine[]) => {
+    return lines.map((line) => ({
+      item_id: line.product.id,
+      item_name: line.product.name,
+      item_category: line.product.scentType,
+      price: line.product.price,
+      quantity: line.quantity
+    }));
+  };
+
+  const trackEvent = (eventName: AnalyticsEventName, payload: Record<string, unknown> = {}) => {
     try {
       window.dispatchEvent(new CustomEvent('twince:analytics', { detail: { eventName, payload, ts: Date.now() } }));
       const win = window as Window & { dataLayer?: Array<Record<string, unknown>> };
       if (win.dataLayer) {
-        win.dataLayer.push({ event: eventName, ...payload });
+        const mapped = GA4_EVENT_MAP[eventName](payload);
+        win.dataLayer.push({ event: mapped.name, ...mapped.params });
+      }
+      if (typeof window.gtag === 'function') {
+        const mapped = GA4_EVENT_MAP[eventName](payload);
+        window.gtag('event', mapped.name, mapped.params);
       }
     } catch (error) {
       // noop
@@ -197,7 +286,7 @@ export default function Page() {
     });
 
     showToast(`Berhasil menambahkan <strong>${product.name}</strong> ke keranjang.`);
-    trackEvent('add_to_cart', { productId, productName: product.name, price: product.price });
+    trackEvent('add_to_cart', { productId, productName: product.name, scentType: product.scentType, price: product.price });
   };
 
   const updateCartQuantity = (productId: string, change: number) => {
@@ -229,6 +318,7 @@ export default function Page() {
       subtotal += item.product.price * item.quantity;
       return `- ${item.product.name} x${item.quantity} (Rp ${item.product.price.toLocaleString('id-ID')})`;
     });
+    const ga4Items = buildCartItems(cart);
 
     const message = [
       'Halo Kak, saya mau order parfum TWINCE.',
@@ -241,9 +331,10 @@ export default function Page() {
     ].join('\n');
 
     window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer');
+    trackEvent('generate_lead', { method: 'whatsapp', value: subtotal, currency: 'IDR', items: ga4Items });
     setCart([]); // Kosongkan keranjang setelah checkout sukses
     document.getElementById('close-cart-btn')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    trackEvent('begin_checkout', { subtotal, items: cart.length });
+    trackEvent('begin_checkout', { subtotal, items: ga4Items });
   };
 
   // --- QUIZ LOGIC ---
@@ -264,7 +355,7 @@ export default function Page() {
       <NavBar
         cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
         onSearchClick={() => { showToast('Fitur pencarian eksklusif sedang dikembangkan.', 'info'); trackEvent('search_click'); }}
-        onLoginClick={() => { showToast('Fitur login member premium segera hadir.', 'info'); trackEvent('login_click'); }}
+        onLoginClick={() => { trackEvent('login_click'); window.location.assign('/login'); }}
       />
       <MobileMenu />
       <HeroSection />
@@ -277,7 +368,14 @@ export default function Page() {
         activeFilter={activeFilter} 
         onFilterChange={(filter) => {
           setActiveFilter(filter);
-          trackEvent('filter_products', { filter });
+          const filteredItems = PRODUCTS.filter((product) => filter === 'Semua' || product.scentType === filter).map((product) => ({
+            item_id: product.id,
+            item_name: product.name,
+            item_category: product.scentType,
+            price: product.price,
+            quantity: 1
+          }));
+          trackEvent('filter_products', { filter, items: filteredItems });
         }} 
         onAddToCart={addToCart} 
       />
