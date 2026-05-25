@@ -10,6 +10,7 @@ import {
   MobileMenu, 
   NavBar, 
   PhilosophySection, 
+  BusinessAssuranceSection,
   QuizSection, 
   TestimonialsSection, 
   ToastContainer 
@@ -18,10 +19,12 @@ import {
 type Product = {
   id: string;
   name: string;
+  sku: string;
   scentType: string;
   notes: string;
   price: number;
   rating: number;
+  stock: number;
   image: string;
   desc: string;
 };
@@ -30,40 +33,48 @@ const PRODUCTS: Product[] = [
   {
     id: 'p1',
     name: 'AÉTHER',
+    sku: 'TW-ATH-01',
     scentType: 'Fresh',
     notes: 'Bergamot, Marine Accord, White Musk',
     price: 1350000,
     rating: 4.8,
+    stock: 12,
     image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600',
     desc: 'Aroma udara pagi pesisir pantai yang bersih, dipadu kesegaran citrus murni untuk jiwa yang berenergi bebas.'
   },
   {
     id: 'p2',
     name: 'IGNIS',
+    sku: 'TW-IGN-02',
     scentType: 'Woody',
     notes: 'Sandalwood, Spiced Cardamom, Vetiver',
     price: 1550000,
     rating: 4.9,
+    stock: 9,
     image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600',
     desc: 'Reputasi kehangatan api malam hari yang dikelilingi hutan kayu cedar. Sangat elegan dan misterius.'
   },
   {
     id: 'p3',
     name: 'NOX',
+    sku: 'TW-NOX-03',
     scentType: 'Floral',
     notes: 'Black Jasmine, Midnight Orchid, Vanilla Oud',
     price: 1650000,
     rating: 5.0,
+    stock: 6,
     image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&q=80&w=600',
     desc: 'Aroma malam yang penuh rahasia dan daya pikat. Intensitas floral gelap yang memikat indra penciuman.'
   },
   {
     id: 'p4',
     name: 'TERRA',
+    sku: 'TW-TER-04',
     scentType: 'Woody',
     notes: 'Patchouli, Earthy Moss, Amberwood',
     price: 1400000,
     rating: 4.7,
+    stock: 8,
     image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=600',
     desc: 'Aroma tanah basah setelah hujan berpadu keanggunan lumut basah purba. Membumi dan menenangkan.'
   }
@@ -158,6 +169,18 @@ export default function Page() {
     }, 3500);
   };
 
+  const trackEvent = (eventName: string, payload: Record<string, unknown> = {}) => {
+    try {
+      window.dispatchEvent(new CustomEvent('twince:analytics', { detail: { eventName, payload, ts: Date.now() } }));
+      const win = window as Window & { dataLayer?: Array<Record<string, unknown>> };
+      if (win.dataLayer) {
+        win.dataLayer.push({ event: eventName, ...payload });
+      }
+    } catch (error) {
+      // noop
+    }
+  };
+
   // --- LOGIC HANDLERS ---
   const addToCart = (productId: string) => {
     const product = PRODUCTS.find((p) => p.id === productId);
@@ -174,6 +197,7 @@ export default function Page() {
     });
 
     showToast(`Berhasil menambahkan <strong>${product.name}</strong> ke keranjang.`);
+    trackEvent('add_to_cart', { productId, productName: product.name, price: product.price });
   };
 
   const updateCartQuantity = (productId: string, change: number) => {
@@ -219,6 +243,7 @@ export default function Page() {
     window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer');
     setCart([]); // Kosongkan keranjang setelah checkout sukses
     document.getElementById('close-cart-btn')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    trackEvent('begin_checkout', { subtotal, items: cart.length });
   };
 
   // --- QUIZ LOGIC ---
@@ -238,18 +263,22 @@ export default function Page() {
       <ToastContainer />
       <NavBar
         cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
-        onSearchClick={() => showToast('Fitur pencarian eksklusif sedang dikembangkan.', 'info')}
-        onLoginClick={() => showToast('Fitur login member premium segera hadir.', 'info')}
+        onSearchClick={() => { showToast('Fitur pencarian eksklusif sedang dikembangkan.', 'info'); trackEvent('search_click'); }}
+        onLoginClick={() => { showToast('Fitur login member premium segera hadir.', 'info'); trackEvent('login_click'); }}
       />
       <MobileMenu />
       <HeroSection />
       <PhilosophySection />
+      <BusinessAssuranceSection />
       
       {/* Kirim State dan fungsi Handler ke dalam komponen CollectionSection */}
       <CollectionSection 
         products={PRODUCTS} 
         activeFilter={activeFilter} 
-        onFilterChange={setActiveFilter} 
+        onFilterChange={(filter) => {
+          setActiveFilter(filter);
+          trackEvent('filter_products', { filter });
+        }} 
         onAddToCart={addToCart} 
       />
       

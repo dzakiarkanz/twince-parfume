@@ -309,6 +309,24 @@ body {
   box-shadow: 0 20px 34px rgba(0, 0, 0, 0.14), 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
+.assurance-card {
+  background: color-mix(in srgb, var(--theme-surface) 92%, transparent);
+  border: 1px solid var(--theme-border);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.assurance-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.1);
+}
+
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .filter-card-enter {
   animation: filterCardIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: opacity, transform, filter;

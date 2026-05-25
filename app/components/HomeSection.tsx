@@ -6,10 +6,12 @@ import ThemeToggle from './ThemeToggle';
 type Product = {
   id: string;
   name: string;
+  sku: string;
   scentType: string;
   notes: string;
   price: number;
   rating: number;
+  stock: number;
   image: string;
   desc: string;
 };
@@ -233,17 +235,60 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
                     </div>
                     <p className="text-[11px] text-zinc-700 tracking-[0.1em] font-medium italic">{product.notes}</p>
                     <p className="text-xs text-zinc-700 line-clamp-2 leading-relaxed font-light">{product.desc}</p>
+                    <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.12em]">
+                      <span className="text-zinc-700">{product.sku}</span>
+                      <span className={`${product.stock > 5 ? 'text-emerald-700' : product.stock > 0 ? 'text-amber-700' : 'text-red-700'} font-semibold`}>
+                        {product.stock > 0 ? `Stok ${product.stock}` : 'Sold Out'}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="p-6 pt-0 border-t border-black/15 flex items-center justify-between mt-auto">
                   <span className="font-bold text-black text-sm">Rp {product.price.toLocaleString('id-ID')}</span>
-                  <button onClick={() => onAddToCart(product.id)} className="px-4 py-2 bg-white hover:bg-black text-black hover:text-white border border-black/20 hover:border-black rounded-full text-xs font-semibold tracking-[0.15em] transition-all duration-300 ease-in-out active:scale-[0.98] flex items-center gap-2">
-                    Add <i className="fa-solid fa-bag-shopping" />
+                  <button
+                    onClick={() => onAddToCart(product.id)}
+                    disabled={product.stock <= 0}
+                    className="px-4 py-2 bg-white hover:bg-black text-black hover:text-white border border-black/20 hover:border-black rounded-full text-xs font-semibold tracking-[0.15em] transition-all duration-300 ease-in-out active:scale-[0.98] flex items-center gap-2 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black"
+                  >
+                    {product.stock > 0 ? 'Add' : 'Sold Out'} <i className="fa-solid fa-bag-shopping" />
                   </button>
                 </div>
               </div>
             );
           })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function BusinessAssuranceSection() {
+  const assurances = [
+    { title: '100% Original', copy: 'Setiap batch memiliki nomor SKU dan quality check sebelum dikirim.', icon: 'fa-shield-heart' },
+    { title: 'Same-Day Response', copy: 'Admin WhatsApp aktif setiap hari 09:00 - 21:00 WIB untuk order dan konsultasi.', icon: 'fa-headset' },
+    { title: 'Garansi Retur 7 Hari', copy: 'Jika botol bocor atau rusak saat tiba, kami kirim pengganti tanpa biaya tambahan.', icon: 'fa-rotate-left' },
+    { title: 'Pengiriman Nasional', copy: 'Didukung kurir reguler dan instant untuk area tertentu dengan update resi real-time.', icon: 'fa-truck-fast' }
+  ];
+
+  return (
+    <section id="kebijakan" className="py-24 bg-white border-y border-black/15 relative">
+      <div className="max-w-7xl mx-auto px-6 space-y-10">
+        <div className="space-y-3 text-center">
+          <span className="text-xs uppercase tracking-[0.24em] text-black font-bold block">Kepercayaan Pelanggan</span>
+          <h2 className="font-serif text-3xl md:text-5xl text-black font-light">Belanja Nyaman Sejak Order Pertama</h2>
+          <p className="text-zinc-700 text-sm md:text-base max-w-3xl mx-auto font-light">Semua fondasi penting untuk tahap rintis kami hadirkan: pengiriman jelas, retur transparan, support cepat, dan produk terverifikasi.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {assurances.map((item) => (
+            <article key={item.title} className="assurance-card rounded-2xl p-6">
+              <div className="w-10 h-10 rounded-full border border-black/20 flex items-center justify-center mb-4">
+                <i className={`fa-solid ${item.icon} text-black text-sm`} />
+              </div>
+              <h3 className="font-serif text-lg text-black mb-2">{item.title}</h3>
+              <p className="text-xs text-zinc-700 leading-relaxed font-light">{item.copy}</p>
+            </article>
+          ))}
         </div>
       </div>
     </section>
@@ -433,12 +478,12 @@ export function FooterSection() {
   return (
     <footer id="tentang" className="bg-white border-t border-black pt-20 pb-12">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-        <div className="space-y-6"><a href="#top" className="flex flex-col transition-all duration-300 ease-in-out hover:opacity-80" aria-label="TWINCE home"><span className="font-serif text-2xl tracking-[0.25em] text-black font-bold">TWINCE</span><span className="text-[8px] tracking-[0.5em] text-zinc-700 uppercase">Extrait De Parfume</span></a><p className="text-xs text-zinc-700 leading-relaxed font-light">Menghidupkan kemewahan penciuman dengan bahan alami berkualitas terbaik dan dedikasi artisanal tinggi.</p><div className="flex space-x-4 text-zinc-700"><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="Instagram"><i className="fa-brands fa-instagram text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="Facebook"><i className="fa-brands fa-facebook text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="TikTok"><i className="fa-brands fa-tiktok text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="YouTube"><i className="fa-brands fa-youtube text-lg" /></a></div></div>
-        <div className="space-y-4"><h4 className="font-serif text-black text-sm tracking-[0.14em] font-semibold">Toko & Koleksi</h4><ul className="space-y-2 text-xs text-zinc-700"><li><a href="#" className="transition-all duration-300 ease-in-out hover:text-black">Extrait De Parfum</a></li><li><a href="#" className="transition-all duration-300 ease-in-out hover:text-black">Eau De Parfum</a></li><li><a href="#" className="transition-all duration-300 ease-in-out hover:text-black">Home Fragrance</a></li><li><a href="#" className="transition-all duration-300 ease-in-out hover:text-black">Edisi Terbatas</a></li></ul></div>
-        <div className="space-y-4"><h4 className="font-serif text-black text-sm tracking-[0.14em] font-semibold">Layanan Pelanggan</h4><ul className="space-y-2 text-xs text-zinc-700"><li><a href="#" className="transition-all duration-300 ease-in-out hover:text-black">Kontak Kami</a></li><li><a href="#" className="transition-all duration-300 ease-in-out hover:text-black">Status Pengiriman</a></li><li><a href="#" className="transition-all duration-300 ease-in-out hover:text-black">Kebijakan Pengembalian</a></li><li><a href="#" className="transition-all duration-300 ease-in-out hover:text-black">Pertanyaan Umum (FAQ)</a></li></ul></div>
+        <div className="space-y-6"><a href="#top" className="flex flex-col transition-all duration-300 ease-in-out hover:opacity-80" aria-label="TWINCE home"><span className="font-serif text-2xl tracking-[0.25em] text-black font-bold">TWINCE</span><span className="text-[8px] tracking-[0.5em] text-zinc-700 uppercase">Extrait De Parfume</span></a><p className="text-xs text-zinc-700 leading-relaxed font-light">Menghidupkan kemewahan penciuman dengan bahan alami berkualitas terbaik dan dedikasi artisanal tinggi.</p><div id="kontak" className="space-y-1 text-xs text-zinc-700"><p className="font-semibold text-black">Official Contact</p><p>WhatsApp: +62 821-2335-4047</p><p>Email: hello@twince.id</p><p>Operasional: 09:00 - 21:00 WIB</p></div><div className="flex space-x-4 text-zinc-700"><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="Instagram"><i className="fa-brands fa-instagram text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="Facebook"><i className="fa-brands fa-facebook text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="TikTok"><i className="fa-brands fa-tiktok text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="YouTube"><i className="fa-brands fa-youtube text-lg" /></a></div></div>
+        <div className="space-y-4"><h4 className="font-serif text-black text-sm tracking-[0.14em] font-semibold">Toko & Koleksi</h4><ul className="space-y-2 text-xs text-zinc-700"><li><a href="#koleksi" className="transition-all duration-300 ease-in-out hover:text-black">Signature Collection</a></li><li><a href="#quiz" className="transition-all duration-300 ease-in-out hover:text-black">Scent Finder</a></li><li><a href="#kebijakan" className="transition-all duration-300 ease-in-out hover:text-black">Garansi & Retur</a></li><li><a href="#kontak" className="transition-all duration-300 ease-in-out hover:text-black">Konsultasi Aroma</a></li></ul></div>
+        <div className="space-y-4"><h4 className="font-serif text-black text-sm tracking-[0.14em] font-semibold">Layanan Pelanggan</h4><ul className="space-y-2 text-xs text-zinc-700"><li><a href="#kontak" className="transition-all duration-300 ease-in-out hover:text-black">Kontak Kami</a></li><li><a href="#kebijakan" className="transition-all duration-300 ease-in-out hover:text-black">Status Pengiriman</a></li><li><a href="#kebijakan" className="transition-all duration-300 ease-in-out hover:text-black">Kebijakan Pengembalian</a></li><li><a href="#kebijakan" className="transition-all duration-300 ease-in-out hover:text-black">Pertanyaan Umum (FAQ)</a></li></ul></div>
         <div className="space-y-4 newsletter-cta-wrap"><h4 className="font-serif text-black text-sm tracking-[0.14em] font-semibold">Bergabung dalam Klub</h4><p className="text-xs text-zinc-700 leading-relaxed font-light">Dapatkan penawaran rilis pengumuman produk eksklusif dan undangan event TWINCE.</p><form onSubmit={(event) => { event.preventDefault(); const input = event.currentTarget.querySelector('input') as HTMLInputElement | null; if (!input) return; const container = document.getElementById('toast-container'); if (!container) return; const toast = document.createElement('div'); toast.className = 'flex items-center gap-3 p-4 bg-white border border-black/20 rounded-2xl shadow-2xl text-black text-sm transition-all duration-300 transform translate-y-5 opacity-0'; toast.innerHTML = `<div class="flex-shrink-0 text-lg"><i class="fa-solid fa-circle-check text-black"></i></div><div class="flex-1 font-light">Terima kasih! <strong>${input.value}</strong> telah didaftarkan dalam keanggotaan eksklusif kami.</div>`; container.appendChild(toast); requestAnimationFrame(() => toast.classList.remove('translate-y-5', 'opacity-0')); window.setTimeout(() => { toast.classList.add('opacity-0', 'scale-90'); window.setTimeout(() => toast.remove(), 300); }, 3500); input.value = ''; }} className="relative"><input type="email" required placeholder="Masukkan email Anda" className="w-full bg-white border border-black/20 text-xs px-4 py-3 pr-10 rounded-full focus:outline-none focus:border-black text-black transition-all duration-300 ease-in-out" /><button type="submit" className="absolute right-1 top-1 bottom-1 px-4 bg-black hover:bg-zinc-900 text-white text-xs font-bold rounded-full transition-all duration-300 ease-in-out active:scale-[0.98]">Join</button></form></div>
       </div>
-      <div className="max-w-7xl mx-auto px-6 border-t border-black pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-700"><div>&copy; 2026 TWINCE Perfumes. Seluruh Hak Cipta Dilindungi.</div><div className="flex space-x-6"><a href="#" className="hover:text-black transition-colors">Syarat & Ketentuan</a><a href="#" className="hover:text-black transition-colors">Kebijakan Privasi</a></div></div>
+      <div className="max-w-7xl mx-auto px-6 border-t border-black pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-700"><div>&copy; 2026 TWINCE Perfumes. Seluruh Hak Cipta Dilindungi. NIB: 1203240001</div><div className="flex space-x-6"><a href="#kebijakan" className="hover:text-black transition-colors">Syarat & Ketentuan</a><a href="#kebijakan" className="hover:text-black transition-colors">Kebijakan Privasi</a></div></div>
     </footer>
   );
 }
