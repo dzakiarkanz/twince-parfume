@@ -133,7 +133,11 @@ body {
   background-image:
     radial-gradient(circle at 15% 15%, rgba(0, 0, 0, 0.04), transparent 34%),
     radial-gradient(circle at 85% 60%, rgba(0, 0, 0, 0.03), transparent 32%);
-  background-attachment: fixed;
+  background-attachment: scroll;
+  background-repeat: no-repeat;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .text-black {
@@ -178,7 +182,7 @@ body {
   background: color-mix(in srgb, var(--theme-surface) 84%, transparent);
   color: var(--theme-text);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-  transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .nav-action-btn {
@@ -194,7 +198,7 @@ body {
   box-shadow: 0 7px 18px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .nav-icon-btn {
@@ -207,7 +211,7 @@ body {
   border: 1px solid transparent;
   background: transparent;
   color: var(--theme-text);
-  transition: transform 0.22s ease, color 0.22s ease, border-color 0.22s ease;
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .nav-icon-btn:hover,
@@ -281,7 +285,13 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--theme-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  animation: navDropIn 0.8s ease both;
+  animation: navDropIn 0.45s ease both;
+  transition: padding 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  will-change: transform, opacity;
+}
+
+.glass-nav.is-scrolled {
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
 }
 
 .hero-gradient {
@@ -292,7 +302,7 @@ body {
   background-color: var(--hero-blob-color) !important;
   opacity: var(--hero-blob-opacity);
   mix-blend-mode: normal;
-  animation: blobDrift 14s ease-in-out infinite;
+  animation: blobDrift 18s ease-in-out infinite;
   will-change: transform;
 }
 
@@ -301,7 +311,8 @@ body {
 }
 
 .product-card {
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.45s ease, box-shadow 0.45s ease;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+  will-change: transform;
 }
 
 .product-card:hover {
@@ -313,7 +324,7 @@ body {
   background: color-mix(in srgb, var(--theme-surface) 92%, transparent);
   border: 1px solid var(--theme-border);
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.06);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .assurance-card:hover {
@@ -328,7 +339,7 @@ body {
 }
 
 .filter-card-enter {
-  animation: filterCardIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: filterCardIn 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: opacity, transform, filter;
 }
 
@@ -337,7 +348,9 @@ body {
 .mobile-link,
 button,
 a {
-  transition: all 0.3s ease-in-out;
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
 }
 
 [data-theme='light'] .nav-link,
@@ -371,9 +384,9 @@ a {
 
 .motion-ready .reveal-item {
   opacity: 0;
-  transform: translateY(24px) scale(0.985);
-  filter: blur(8px);
-  transition: opacity 0.75s ease, transform 0.75s ease, filter 0.75s ease;
+  transform: translateY(18px) scale(0.99);
+  filter: blur(2px);
+  transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
   transition-delay: var(--reveal-delay, 0ms);
 }
 
@@ -398,8 +411,9 @@ a {
   color: var(--theme-on-solid);
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2), 0 8px 20px rgba(0, 0, 0, 0.12);
   border: 1px solid var(--theme-border);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
-  animation: waFloat 3.4s ease-in-out infinite;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  animation: waFloat 4.8s ease-in-out infinite;
+  will-change: transform;
 }
 
 .floating-wa::after {
@@ -408,7 +422,7 @@ a {
   inset: -5px;
   border-radius: inherit;
   border: 1px solid var(--theme-border);
-  animation: waPulse 2.4s ease-out infinite;
+  animation: waPulse 3.4s ease-out infinite;
   pointer-events: none;
 }
 
@@ -437,6 +451,12 @@ a {
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
 }
 
+.hero-image-motion {
+  animation: heroFloat 16s ease-in-out infinite;
+  will-change: transform;
+  transform-origin: center center;
+}
+
 /* Hero & CTA readability tweaks for dark mode */
 [data-theme='dark'] #top .text-white {
   color: #ffffff !important;
@@ -462,7 +482,29 @@ a {
 }
 
 [data-theme='dark'] a.group .relative.z-10 {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+.hero-cta-primary-label {
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.18) !important;
+}
+
+[data-theme='dark'] .hero-cta-primary-label,
+[data-theme='dark'] .group:hover .hero-cta-primary-label,
+[data-theme='dark'] .group:focus-visible .hero-cta-primary-label {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  text-shadow: none !important;
+}
+
+[data-theme='light'] .group:hover .hero-cta-primary-label,
+[data-theme='light'] .group:focus-visible .hero-cta-primary-label {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.18) !important;
 }
 
 /* Small CTA hover boost */
@@ -476,12 +518,6 @@ a {
 }
 
 
-/* Specific override: make CTA span text black in dark mode per user request */
-[data-theme='dark'] #top a.group span.relative.z-10 {
-  color: #000000 !important;
-  text-shadow: none !important;
-}
-
 /* Ensure buttons that use .bg-black (rendering as light bg in dark mode) have readable dark text */
 [data-theme='dark'] button.bg-black,
 [data-theme='dark'] a.bg-black,
@@ -489,6 +525,18 @@ a {
   color: #000000 !important;
   --tw-text-opacity: 1;
   text-shadow: none !important;
+}
+
+[data-theme='dark'] #top a.group {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme='dark'] #top a.group:hover,
+[data-theme='dark'] #top a.group:focus-visible {
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }
 
 [data-theme='dark'] button.bg-black:hover,
@@ -529,26 +577,31 @@ a {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes heroFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50% { transform: translate3d(0, -6px, 0) scale(1.07); }
+}
+
 @keyframes blobDrift {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(0, -18px, 0) scale(1.05); }
+  50% { transform: translate3d(0, -10px, 0) scale(1.03); }
 }
 
 @keyframes waFloat {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-4px); }
 }
 
 @keyframes waPulse {
   0% { opacity: 0.6; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.18); }
+  100% { opacity: 0; transform: scale(1.1); }
 }
 
 @keyframes filterCardIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.985);
-    filter: blur(5px);
+    transform: translateY(8px) scale(0.99);
+    filter: blur(2px);
   }
 
   to {
@@ -559,6 +612,10 @@ a {
 }
 
 @media (max-width: 1023px) {
+  body {
+    background-attachment: scroll;
+  }
+
   .floating-wa {
     right: 1rem;
     bottom: 1rem;
@@ -572,8 +629,23 @@ a {
 }
 
 @media (max-width: 767px) {
+  body {
+    background-image:
+      radial-gradient(circle at 15% 12%, rgba(0, 0, 0, 0.035), transparent 28%),
+      radial-gradient(circle at 85% 58%, rgba(0, 0, 0, 0.025), transparent 24%);
+  }
+
+  .glass-nav .max-w-7xl {
+    min-height: 4.5rem;
+  }
+
   #product-grid {
     gap: 1rem;
+  }
+
+  .glass-nav {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   .floating-wa {
@@ -593,6 +665,7 @@ a {
   .floating-wa,
   .floating-wa::after,
   .glass-nav,
+  .hero-image-motion,
   .motion-ready .reveal-item {
     animation: none !important;
     transition: none !important;
@@ -603,5 +676,9 @@ a {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
+  }
+
+  body {
+    background-attachment: scroll;
   }
 }

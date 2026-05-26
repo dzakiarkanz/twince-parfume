@@ -60,7 +60,7 @@ export function NavBar({ cartCount, onSearchClick, onLoginClick }: NavBarProps) 
 
   return (
     <nav className="fixed top-0 left-0 w-full z-40 glass-nav transition-all duration-300 ease-in-out">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
         <a href="#top" className="flex flex-col items-center transition-all duration-300 ease-in-out hover:opacity-80" aria-label="TWINCE home">
           <span className="font-serif text-2xl tracking-[0.25em] text-black font-bold">TWINCE</span>
           <span className="text-[8px] tracking-[0.5em] text-zinc-700 uppercase">Extrait De Parfume</span>
@@ -79,7 +79,7 @@ export function NavBar({ cartCount, onSearchClick, onLoginClick }: NavBarProps) 
           ))}
         </div>
 
-        <div className="flex items-center space-x-3 text-black">
+        <div className="flex items-center space-x-2 sm:space-x-3 text-black">
           <button onClick={onLoginClick} id="login-btn" aria-label="Open login" className="nav-icon-btn nav-login-btn" type="button">
             <i className="fa-solid fa-user-large text-[15px]" />
           </button>
@@ -125,19 +125,19 @@ export function MobileMenu() {
 
 export function HeroSection() {
   return (
-    <section id="top" className="relative h-screen w-full overflow-hidden flex items-center justify-center">
+    <section id="top" className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0 z-0">
-        <img src="https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&q=80&w=2000" className="w-full h-full object-cover object-center filter brightness-[0.35] scale-105 transform motion-safe:animate-[pulse_10s_infinite]" alt="Luxury Perfume Bottle Aesthetic" />
+        <img src="https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&q=80&w=2000" className="hero-image-motion w-full h-full object-cover object-center filter brightness-[0.35] scale-105 transform-gpu" alt="Luxury Perfume Bottle Aesthetic" loading="eager" decoding="async" fetchPriority="high" />
         <div className="absolute inset-0 hero-gradient" />
       </div>
-      <div className="ambient-blob absolute top-1/4 left-10 w-96 h-96 bg-white rounded-full blur-[120px] pointer-events-none" />
-      <div className="ambient-blob blob-right absolute bottom-1/4 right-10 w-[450px] h-[450px] bg-white rounded-full blur-[150px] pointer-events-none" />
-      <div className="relative z-10 text-center px-6 max-w-4xl mx-auto mt-20">
+      <div className="ambient-blob absolute top-1/4 left-10 w-96 h-96 bg-white rounded-full blur-[120px] pointer-events-none transform-gpu" />
+      <div className="ambient-blob blob-right absolute bottom-1/4 right-10 w-[450px] h-[450px] bg-white rounded-full blur-[150px] pointer-events-none transform-gpu" />
+      <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto mt-20">
         <p className="text-xs uppercase tracking-[0.4em] text-white font-bold mb-6 animate-fade-in-up">Karya Seni Aroma yang Abadi</p>
         <h1 className="font-serif text-5xl md:text-8xl text-white font-bold leading-tight tracking-wide mb-8">Definisikan <br className="hidden md:inline" /><span className="hero-accent italic font-light">Kharismamu</span></h1>
         <p className="text-sm md:text-lg text-white/90 font-light leading-relaxed max-w-2xl mx-auto mb-12 tracking-wide">Dibuat dengan ekstraksi bahan nabati premium dan diproduksi secara eksklusif. Setiap semprotan TWINCE bercerita tentang keanggunan, ambisi, dan kemewahan sejati.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <a href="#koleksi" className="group relative px-8 py-4 bg-black hover:bg-zinc-900 text-white font-semibold tracking-[0.15em] text-xs uppercase rounded-full transition-all duration-300 ease-in-out active:scale-[0.98] overflow-hidden shadow-lg shadow-black/20 w-full sm:w-auto"><span className="relative z-10 flex items-center justify-center gap-2">Jelajahi Koleksi <i className="fa-solid fa-arrow-right transition-transform duration-300 ease-in-out group-hover:translate-x-1" /></span></a>
+          <a href="#koleksi" className="group relative px-8 py-4 bg-black hover:bg-zinc-900 text-white border border-white/70 hover:border-white font-semibold tracking-[0.15em] text-xs uppercase rounded-full transition-all duration-300 ease-in-out active:scale-[0.98] overflow-hidden shadow-lg shadow-black/20 w-full sm:w-auto"><span className="hero-cta-primary-label relative z-10 flex items-center justify-center gap-2">Jelajahi Koleksi <i className="fa-solid fa-arrow-right transition-transform duration-300 ease-in-out group-hover:translate-x-1" /></span></a>
           <a href="#quiz" className="px-8 py-4 border border-white hover:border-white text-white hover:text-white font-semibold tracking-[0.15em] text-xs uppercase rounded-full transition-all duration-300 bg-transparent w-full sm:w-auto">Cari Scent Anda <i className="fa-solid fa-wand-magic-sparkles ml-1" /></a>
         </div>
       </div>
@@ -151,17 +151,17 @@ export function HeroSection() {
 
 export function PhilosophySection() {
   return (
-    <section id="philosophy" className="py-24 bg-white relative">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+    <section id="philosophy" className="py-20 md:py-24 bg-white relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center">
         <div className="relative flex flex-col gap-6">
           <div className="rounded-2xl overflow-hidden aspect-[4/3] shadow-2xl relative border border-black/15 backdrop-blur-sm">
-            <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80&w=1200" alt="Fine Crafting Perfume Ingredients" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700" />
+            <img src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80&w=1200" alt="Fine Crafting Perfume Ingredients" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <span className="absolute bottom-6 left-6 text-xs uppercase tracking-[0.3em] text-white font-medium">Bahan Organik Murni</span>
           </div>
           <div className="grid grid-cols-2 gap-6">
-            <div className="rounded-xl overflow-hidden aspect-square border border-black/15 backdrop-blur-sm"><img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600" alt="Luxury Glass Bottle Detail" className="w-full h-full object-cover transition-transform duration-500 ease-in-out hover:scale-105" /></div>
-            <div className="rounded-xl overflow-hidden aspect-square border border-black/15 backdrop-blur-sm"><img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600" alt="Exquisite Perfume Extraction" className="w-full h-full object-cover transition-transform duration-500 ease-in-out hover:scale-105" /></div>
+            <div className="rounded-xl overflow-hidden aspect-square border border-black/15 backdrop-blur-sm"><img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600" alt="Luxury Glass Bottle Detail" className="w-full h-full object-cover transition-transform duration-500 ease-in-out hover:scale-105" loading="lazy" decoding="async" /></div>
+            <div className="rounded-xl overflow-hidden aspect-square border border-black/15 backdrop-blur-sm"><img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600" alt="Exquisite Perfume Extraction" className="w-full h-full object-cover transition-transform duration-500 ease-in-out hover:scale-105" loading="lazy" decoding="async" /></div>
           </div>
         </div>
         <div className="space-y-8 lg:pl-10">
@@ -193,11 +193,11 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
   };
 
   return (
-    <section id="koleksi" className="py-24 bg-white relative">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+    <section id="koleksi" className="py-20 md:py-24 bg-white relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
           <div className="space-y-3"><span className="text-xs uppercase tracking-[0.24em] text-black font-bold block">Signature Line</span><h2 className="font-serif text-3xl md:text-5xl text-black font-light">Koleksi Signature Kami</h2></div>
-          <div className="flex items-center gap-4 text-xs tracking-[0.14em] border-b border-black/15 pb-2">
+          <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs tracking-[0.14em] border-b border-black/15 pb-3 md:pb-2">
             {['Semua', 'Woody', 'Fresh', 'Floral'].map((filter) => (
               <button
                 key={filter}
@@ -211,7 +211,7 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
           </div>
         </div>
 
-        <div id="product-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div id="product-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
           {filteredProducts.map((product, index) => {
             const scentTone = scentToneMap[product.scentType.toLowerCase()] || '#E0A96D';
             return (
@@ -222,7 +222,7 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
               >
                 <div className="relative">
                   <div className="relative aspect-square overflow-hidden bg-white">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.95]" />
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.95]" loading="lazy" decoding="async" />
                     <span style={{ ['--scent-tone' as any]: scentTone }} className="scent-chip absolute top-4 left-4 backdrop-blur-md border text-[10px] tracking-[0.22em] font-bold px-3 py-1 rounded-full uppercase text-black">{product.scentType}</span>
                   </div>
                   <div className="p-6 space-y-3">
@@ -271,8 +271,8 @@ export function BusinessAssuranceSection() {
   ];
 
   return (
-    <section id="kebijakan" className="py-24 bg-white border-y border-black/15 relative">
-      <div className="max-w-7xl mx-auto px-6 space-y-10">
+    <section id="kebijakan" className="py-20 md:py-24 bg-white border-y border-black/15 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-10">
         <div className="space-y-3 text-center">
           <span className="text-xs uppercase tracking-[0.24em] text-black font-bold block">Kepercayaan Pelanggan</span>
           <h2 className="font-serif text-3xl md:text-5xl text-black font-light">Belanja Nyaman Sejak Order Pertama</h2>
@@ -311,15 +311,15 @@ export function QuizSection({ answers, recommendedProduct, onSelectOption, onRes
   const recommendationTone = scentToneMap[recommendedProduct.scentType.toLowerCase()] || '#E0A96D';
 
   return (
-    <section id="quiz" className="py-24 bg-white border-y border-black relative">
-      <div className="max-w-4xl mx-auto px-6 text-center">
+    <section id="quiz" className="py-20 md:py-24 bg-white border-y border-black relative">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <div className="space-y-4 mb-12">
           <span className="text-xs uppercase tracking-[0.24em] text-black font-bold block">Personal Scent Quiz</span>
           <h2 className="font-serif text-3xl md:text-5xl text-black font-light">Temukan Scent Identitasmu</h2>
           <p className="text-zinc-700 text-sm max-w-xl mx-auto font-light">Jawab 3 pertanyaan sederhana dan algoritma pencocokan aroma kami akan merekomendasikan varian TWINCE yang sesuai dengan karaktermu.</p>
         </div>
 
-        <div className="bg-white/90 backdrop-blur-sm border border-black/15 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden min-h-[350px] flex flex-col justify-center">
+        <div className="bg-white/90 backdrop-blur-sm border border-black/15 rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl relative overflow-hidden min-h-[350px] flex flex-col justify-center">
           
           {currentStep === 'intro' && (
             <div id="quiz-intro" className="space-y-8">
@@ -371,7 +371,7 @@ export function QuizSection({ answers, recommendedProduct, onSelectOption, onRes
               <span className="text-xs uppercase tracking-[0.24em] text-black font-bold block">Rekomendasi Terbaik Anda</span>
               <div id="recommendation-card" className="flex flex-col md:flex-row items-center gap-8 text-left max-w-2xl mx-auto bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-black/15">
                 <div className="w-full md:w-1/3 aspect-square rounded-xl overflow-hidden bg-white border border-black/15">
-                  <img src={recommendedProduct.image} alt={recommendedProduct.name} className="w-full h-full object-cover" />
+                  <img src={recommendedProduct.image} alt={recommendedProduct.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 </div>
                 <div className="flex-1 space-y-4">
                   <div>
@@ -407,8 +407,8 @@ export function QuizSection({ answers, recommendedProduct, onSelectOption, onRes
 
 export function TestimonialsSection() {
   return (
-    <section className="py-24 bg-white text-center relative">
-      <div className="max-w-4xl mx-auto px-6">
+    <section className="py-20 md:py-24 bg-white text-center relative">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="space-y-3 mb-12"><span className="text-xs uppercase tracking-[0.3em] text-black font-semibold block">Suara Pelanggan</span><h2 className="font-serif text-3xl md:text-5xl text-black font-light">Kisah Keharuman Mereka</h2></div>
         <div className="relative min-h-[250px] flex items-center justify-center">
           <div className="space-y-6 max-w-2xl mx-auto">
@@ -429,8 +429,8 @@ export function CartDrawer({ cartItems, onUpdateQuantity, onCheckout }: CartDraw
   return (
     <div id="cart-drawer" className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
       <div id="cart-backdrop" className="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-500 ease-in-out pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-        <div id="cart-panel" className="w-screen max-w-md bg-white border-l border-black pointer-events-auto transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col justify-between shadow-2xl">
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-2 sm:pl-10">
+        <div id="cart-panel" className="w-[min(100vw-0.5rem,28rem)] sm:w-screen sm:max-w-md bg-white border-l border-black pointer-events-auto transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col justify-between shadow-2xl">
           <div className="px-6 py-6 border-b border-black flex items-center justify-between"><h3 className="font-serif text-lg text-black tracking-wide flex items-center gap-2"><i className="fa-solid fa-bag-shopping text-black" /> Keranjang Belanja</h3><button id="close-cart-btn" aria-label="Close cart" className="text-zinc-700 hover:text-black text-xl" type="button"><i className="fa-solid fa-xmark" /></button></div>
           
           <div id="cart-items-container" className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -443,7 +443,7 @@ export function CartDrawer({ cartItems, onUpdateQuantity, onCheckout }: CartDraw
               cartItems.map((item) => (
                 <div key={item.product.id} className="flex gap-4 p-4 bg-white/90 backdrop-blur-sm border border-black/15 rounded-xl items-center">
                   <div className="w-16 h-16 bg-white rounded-lg overflow-hidden flex-shrink-0">
-                    <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                    <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-serif text-black text-sm font-medium truncate">{item.product.name}</h4>
@@ -477,7 +477,7 @@ export function CartDrawer({ cartItems, onUpdateQuantity, onCheckout }: CartDraw
 export function FooterSection() {
   return (
     <footer id="tentang" className="bg-white border-t border-black pt-20 pb-12">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-16">
         <div className="space-y-6"><a href="#top" className="flex flex-col transition-all duration-300 ease-in-out hover:opacity-80" aria-label="TWINCE home"><span className="font-serif text-2xl tracking-[0.25em] text-black font-bold">TWINCE</span><span className="text-[8px] tracking-[0.5em] text-zinc-700 uppercase">Extrait De Parfume</span></a><p className="text-xs text-zinc-700 leading-relaxed font-light">Menghidupkan kemewahan penciuman dengan bahan alami berkualitas terbaik dan dedikasi artisanal tinggi.</p><div id="kontak" className="space-y-1 text-xs text-zinc-700"><p className="font-semibold text-black">Official Contact</p><p>WhatsApp: +62 821-2335-4047</p><p>Email: hello@twince.id</p><p>Operasional: 09:00 - 21:00 WIB</p></div><div className="flex space-x-4 text-zinc-700"><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="Instagram"><i className="fa-brands fa-instagram text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="Facebook"><i className="fa-brands fa-facebook text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="TikTok"><i className="fa-brands fa-tiktok text-lg" /></a><a href="#" className="transition-all duration-300 ease-in-out hover:text-black hover:-translate-y-0.5" aria-label="YouTube"><i className="fa-brands fa-youtube text-lg" /></a></div></div>
         <div className="space-y-4"><h4 className="font-serif text-black text-sm tracking-[0.14em] font-semibold">Toko & Koleksi</h4><ul className="space-y-2 text-xs text-zinc-700"><li><a href="#koleksi" className="transition-all duration-300 ease-in-out hover:text-black">Signature Collection</a></li><li><a href="#quiz" className="transition-all duration-300 ease-in-out hover:text-black">Scent Finder</a></li><li><a href="#kebijakan" className="transition-all duration-300 ease-in-out hover:text-black">Garansi & Retur</a></li><li><a href="#kontak" className="transition-all duration-300 ease-in-out hover:text-black">Konsultasi Aroma</a></li></ul></div>
         <div className="space-y-4"><h4 className="font-serif text-black text-sm tracking-[0.14em] font-semibold">Layanan Pelanggan</h4><ul className="space-y-2 text-xs text-zinc-700"><li><a href="#kontak" className="transition-all duration-300 ease-in-out hover:text-black">Kontak Kami</a></li><li><a href="#kebijakan" className="transition-all duration-300 ease-in-out hover:text-black">Status Pengiriman</a></li><li><a href="#kebijakan" className="transition-all duration-300 ease-in-out hover:text-black">Kebijakan Pengembalian</a></li><li><a href="#kebijakan" className="transition-all duration-300 ease-in-out hover:text-black">Pertanyaan Umum (FAQ)</a></li><li><a href="/login" className="transition-all duration-300 ease-in-out hover:text-black">Member Login</a></li><li><a href="/dashboard" className="transition-all duration-300 ease-in-out hover:text-black">Dashboard Stok</a></li></ul></div>

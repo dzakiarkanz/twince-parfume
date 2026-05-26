@@ -195,20 +195,28 @@ export default function Page() {
 
     // 4. Navbar Scroll Effect
     const nav = document.querySelector('nav');
+    let scrollRaf = 0;
     const handleScroll = () => {
       if (!nav) return;
-      if (window.scrollY > 50) {
-        nav.style.paddingTop = '0px';
-        nav.style.paddingBottom = '0px';
-      } else {
-        nav.style.paddingTop = '10px';
-        nav.style.paddingBottom = '10px';
-      }
+      const shouldCompact = window.scrollY > 50;
+      nav.classList.toggle('is-scrolled', shouldCompact);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = window.requestAnimationFrame(() => {
+        handleScroll();
+        scrollRaf = 0;
+      });
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', onScroll);
+      if (scrollRaf) {
+        window.cancelAnimationFrame(scrollRaf);
+      }
       observer.disconnect();
     };
   }, []);
