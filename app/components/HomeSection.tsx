@@ -202,7 +202,8 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
               <button
                 key={filter}
                 onClick={() => onFilterChange(filter)}
-                className={`pb-2 -mb-[10px] uppercase transition-all duration-300 ease-in-out ${activeFilter === filter ? 'text-black border-b border-black font-semibold' : 'text-zinc-700 hover:text-black'}`}
+                aria-pressed={activeFilter === filter}
+                className={`filter-btn pb-2 -mb-[10px] uppercase transition-all duration-300 ease-in-out ${activeFilter === filter ? 'text-black font-semibold' : 'text-zinc-700 hover:text-black'}`}
                 type="button"
               >
                 {filter}

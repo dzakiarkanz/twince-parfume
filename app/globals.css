@@ -22,6 +22,11 @@
   --hero-text: #f6efe4;
   --hero-text-muted: rgba(246, 239, 228, 0.9);
   --hero-text-accent: #e2c07a;
+  /* Filter underline tuning */
+  --filter-underline-width: 60%;
+  --filter-underline-active-width: 78%;
+  --filter-underline-duration: 280ms;
+  --filter-underline-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @tailwind base;
@@ -388,6 +393,37 @@ a {
   filter: blur(2px);
   transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
   transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Filter buttons: stable centered underline using pseudo-element (theme-aware) */
+.filter-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+}
+.filter-btn::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  width: var(--filter-underline-width);
+  height: 1px;
+  background-color: var(--nav-link-underline);
+  transition: transform var(--filter-underline-duration) var(--filter-underline-ease), opacity 0.2s ease;
+  opacity: 0.95;
+}
+.filter-btn:hover::after,
+.filter-btn:focus-visible::after {
+  transform: translateX(-50%) scaleX(1);
+  opacity: 1;
+}
+
+.filter-btn[aria-pressed="true"]::after {
+  transform: translateX(-50%) scaleX(1);
+  width: var(--filter-underline-active-width);
+  opacity: 1;
 }
 
 .motion-ready .reveal-item.is-visible {
