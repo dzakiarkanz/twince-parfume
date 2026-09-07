@@ -1,92 +1,58 @@
-# TWINCE Perfume Website (Next.js 14)
+# 🌿 Twince — Modern E-Commerce Platform
 
-Website parfum premium dengan fitur:
-- Landing page editorial premium
-- Filter produk
-- Cart drawer
-- Scent Finder quiz
-- CTA order WhatsApp
+> **Live Demo:** [twince.vercel.app](https://twince.vercel.app)  
+> **Project Status:** 🚀 **Active MVP / Beta v0.9** (Actively maintained & developed)
 
-Project ini cocok untuk website modern di 2026 karena sudah menyentuh UI polish, interaction UX, SEO dasar, dan readiness deployment.
+---
 
-## Struktur Project
-- `app/layout.tsx`: root layout, metadata SEO, schema JSON-LD, dan konfigurasi global halaman.
-- `app/page.tsx`: halaman utama + seluruh interaksi client-side (cart, quiz, toast, menu, checkout).
-- `app/globals.css`: animation, glass effect, dan utility custom global.
-- `style.css`: legacy style tambahan untuk estetika awal.
-- `app/robots.ts`: robots rules untuk crawler.
-- `app/sitemap.ts`: sitemap otomatis untuk indexing.
-- `app/loading.tsx`: loading fallback route.
-- `app/not-found.tsx`: halaman 404 custom.
+## 📌 Project Overview
+Twince adalah platform e-commerce produk wewangian (fragrance) editorial modern yang dibangun menggunakan arsitektur Next.js App Router. Platform ini dirancang dengan fokus pada estetika visual premium, performa tinggi, navigasi responsif, SEO-ready metadata, serta integrasi konsultasi aroma cerdas berbasis kecerdasan buatan (*AI Scent Sommelier*).
 
-## Menjalankan Project
-Gunakan `npm.cmd` di PowerShell Windows jika policy script ketat.
+### 🛠️ Tech Stack & Tools
+- **Framework:** Next.js 14 (App Router)
+- **UI & Styling:** React 18, Tailwind CSS, Glassmorphism Custom Utilities, Lucide Icons
+- **AI Integration:** Google Gemini API (`@google/genai`)
+- **Analytics & SEO:** Google Analytics 4 (Custom Event Tracking), JSON-LD Schema, Dynamic Sitemap & Robots
+- **Deployment:** Vercel (CI/CD Pipeline)
 
-```bash
-npm install
-npm.cmd run dev
-```
+---
 
-Buka:
+## ✨ Key Features
 
-```text
-http://localhost:3000
-```
+- **Editorial Landing Page:** Desain responsif bertema luxury editorial dengan interaksi mikro yang halus.
+- **Dynamic Catalog & Filter:** Kurasi dan penyesuaian filter aroma secara instan di sisi klien.
+- **Interactive Scent Finder Quiz:** Kuis interaktif pencocokan profil wewangian berdasarkan preferensi pengguna.
+- **Cart Drawer & Seamless Checkout:** Keranjang belanja interaktif terintegrasi WhatsApp Order Lead generator.
+- **Production-Ready SEO:** Optimasi crawl engine dengan `sitemap.ts`, `robots.ts`, dan JSON-LD structured data.
+- **GA4 E-Commerce Tracking:** Event logging otomatis untuk pencarian (`search`), filter katalog (`view_item_list`), keranjang (`add_to_cart`), dan checkout (`begin_checkout`).
 
-## Build Production
-```bash
-npm.cmd run build
-npm.cmd run start
-```
+---
 
-## Jika Muncul Error Dev Cache (contoh: Cannot find module ./*.js)
-```bash
-Remove-Item -Recurse -Force .next
-npm.cmd run dev
-```
+## 🚦 Roadmap & Engineering Progress
 
-## Environment Variable (Opsional tapi Disarankan)
-Set URL domain production supaya metadata canonical/sitemap akurat.
+| Fitur / Komponen | Status | Detail Teknis |
+| :--- | :--- | :--- |
+| **Responsive Catalog UI** | ✅ Completed | Tailwind CSS + Dynamic Filter |
+| **Interactive Fragrance Quiz** | ✅ Completed | Client-side preference matcher |
+| **Cart Drawer & State** | ✅ Completed | Local state persistence + WhatsApp Checkout |
+| **SEO & E-Commerce Telemetry** | ✅ Completed | Meta tags, Sitemap, Robots, GA4 Event Logging |
+| **AI Scent Sommelier** | 🔄 In Progress | Gemini 2.5 Flash API Route Handler (`@google/genai`) |
+| **Database & Auth Integration** | 🔄 In Progress | Supabase (PostgreSQL) + Prisma ORM |
+| **Payment Gateway** | 📋 Planned | Midtrans Snap sandbox integration |
+
+---
+
+## 📁 Project Architecture
 
 ```text
-NEXT_PUBLIC_SITE_URL=https://domain-kamu.com
-```
-
-Untuk GA4, tambahkan Measurement ID berikut di `.env.local` atau environment deployment:
-
-```text
-NEXT_PUBLIC_GA4_ID=G-XXXXXXXXXX
-```
-
-Event tracking yang aktif saat ini:
-- `search` saat ikon search ditekan
-- `login` saat ikon login ditekan
-- `view_item_list` saat filter koleksi berubah
-- `add_to_cart` saat produk masuk keranjang
-- `begin_checkout` saat checkout WhatsApp diproses
-- `generate_lead` saat lead order WhatsApp dibuat
-
-## Roadmap Belajar (Pemula -> Siap Kerja)
-1. **Frontend Foundation**
-	Pahami komponen React, props, state, event, conditional rendering.
-2. **UX Execution**
-	Fokus ke hierarchy visual, spacing rhythm, readability, micro-interaction.
-3. **Performance & SEO**
-	Terapkan metadata, sitemap, robots, optimasi asset.
-4. **Backend Integration**
-	Lanjutkan ke API order, payment gateway, auth admin dashboard.
-5. **Deployment & Monitoring**
-	Deploy ke Vercel/Azure, pasang analytics, error tracking, uptime monitor.
-
-## Target Nilai 10/10 untuk Website Ini
-Checklist kualitas:
-- [x] UI premium dan konsisten
-- [x] Interaction halus (hover, active, transition)
-- [x] Responsive desktop/mobile
-- [x] Build production lulus
-- [x] SEO dasar siap (metadata + robots + sitemap)
-- [ ] Integrasi backend order database
-- [ ] Integrasi payment dan dashboard admin
-- [ ] Testing otomatis (unit/e2e)
-
-Jika tiga poin terakhir selesai, website ini sudah sangat dekat ke level production komersial penuh.
+├── app/
+│   ├── layout.tsx         # Root layout, SEO metadata, JSON-LD schema
+│   ├── page.tsx           # Main page & interactive client components (Cart, Quiz, Toast)
+│   ├── loading.tsx        # Suspense loading boundary
+│   ├── not-found.tsx      # Custom 404 page
+│   ├── sitemap.ts         # Dynamic search engine sitemap
+│   ├── robots.ts          # Search engine crawler policies
+│   ├── globals.css        # Global design tokens, glass effects, animations
+│   └── api/
+│       └── recommend/     # Next.js Route Handler for Gemini AI Sommelier
+└── public/                # Static assets & brand media
