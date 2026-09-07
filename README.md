@@ -1,6 +1,6 @@
 # 🌿 Twince — Modern E-Commerce Platform
 
-> **Live Demo:** [twince.vercel.app](https://twince.vercel.app)  
+> **Live Demo:** [twince.vercel.app](https://twince-parfume.vercel.app/)  
 > **Project Status:** 🚀 **Active MVP / Beta v0.9** (Actively maintained & developed)
 
 ---
