@@ -17,6 +17,8 @@ import {
 import CartDrawer from './components/CartDrawer';
 import { useCart } from './context/CartContext';
 import type { Product } from './types/product';
+import { PRODUCTS } from './data/products';
+import ScentFinderModal from './components/ScentFinderModal';
 
 type AnalyticsEventName =
   | 'search_click'
@@ -87,83 +89,13 @@ const GA4_EVENT_MAP: Record<AnalyticsEventName, (payload: Record<string, unknown
   })
 };
 
-const PRODUCTS: Product[] = [
-  {
-    id: 'p1',
-    name: 'AÉTHER',
-    sku: 'TW-ATH-01',
-    scentType: 'Fresh',
-    notes: 'Bergamot, Marine Accord, White Musk',
-    price: 1350000,
-    rating: 4.8,
-    stock: 12,
-    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&q=85&w=800&h=800',
-    desc: 'Aroma udara pagi pesisir pantai yang bersih, dipadu kesegaran citrus murni untuk jiwa yang berenergi bebas.',
-    aromaPyramid: {
-      top: 'Bergamot, Lemon Zest',
-      heart: 'Marine Accord, Neroli',
-      base: 'White Musk, Driftwood'
-    }
-  },
-  {
-    id: 'p2',
-    name: 'IGNIS',
-    sku: 'TW-IGN-02',
-    scentType: 'Woody',
-    notes: 'Sandalwood, Spiced Cardamom, Vetiver',
-    price: 1550000,
-    rating: 4.9,
-    stock: 9,
-    image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=85&w=800&h=800',
-    desc: 'Reputasi kehangatan api malam hari yang dikelilingi hutan kayu cedar. Sangat elegan dan misterius.',
-    aromaPyramid: {
-      top: 'Spiced Cardamom, Pink Pepper',
-      heart: 'Sandalwood, Cedarwood',
-      base: 'Vetiver, Tonka Bean'
-    }
-  },
-  {
-    id: 'p3',
-    name: 'NOX',
-    sku: 'TW-NOX-03',
-    scentType: 'Floral',
-    notes: 'Black Jasmine, Midnight Orchid, Vanilla Oud',
-    price: 1650000,
-    rating: 5.0,
-    stock: 6,
-    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&q=85&w=800&h=800',
-    desc: 'Aroma malam yang penuh rahasia dan daya pikat. Intensitas floral gelap yang memikat indra penciuman.',
-    aromaPyramid: {
-      top: 'Black Pepper, Bergamot',
-      heart: 'Black Jasmine, Midnight Orchid',
-      base: 'Vanilla Oud, Dark Amber'
-    }
-  },
-  {
-    id: 'p4',
-    name: 'TERRA',
-    sku: 'TW-TER-04',
-    scentType: 'Woody',
-    notes: 'Patchouli, Earthy Moss, Amberwood',
-    price: 1400000,
-    rating: 4.7,
-    stock: 8,
-    image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&sat=-20&exp=-1&w=800&h=800',
-    desc: 'Aroma tanah basah setelah hujan berpadu keanggunan lumut basah purba. Membumi dan menenangkan.',
-    aromaPyramid: {
-      top: 'Green Mandarin, Black Pepper',
-      heart: 'Patchouli, Earthy Moss',
-      base: 'Amberwood, Vetiver'
-    }
-  }
-];
-
 const QUIZ_DEFAULT = { step1: '', step2: '', step3: '' };
 
 export default function Page() {
   // --- REACT STATES (Menggantikan Manipulasi DOM Manual) ---
   const { totalItems, addToCart: addProductToCart, setIsCartOpen } = useCart();
   const [quizAnswers, setQuizAnswers] = useState(QUIZ_DEFAULT);
+  const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('Semua');
   const [waNumber, setWaNumber] = useState('6282123354047');
 
@@ -306,7 +238,7 @@ export default function Page() {
         onLoginClick={() => { trackEvent('login_click'); window.location.assign('/login'); }}
       />
       <MobileMenu />
-      <HeroSection />
+      <HeroSection onOpenQuiz={() => setIsQuizOpen(true)} />
       <PhilosophySection />
       <BusinessAssuranceSection />
       
@@ -335,6 +267,7 @@ export default function Page() {
         onSelectOption={handleSelectOption}
         onRestartQuiz={() => setQuizAnswers(QUIZ_DEFAULT)}
         onAddToCart={handleQuizAddToCart}
+        onOpenQuiz={() => setIsQuizOpen(true)}
         onOrderWhatsApp={(prod: Product) => {
           const msg = [`Halo Kak, saya mau order parfum ${prod.name}.`, `Varian: ${prod.name} - Rp ${prod.price.toLocaleString('id-ID')}`, 'Rekomendasi dari Scent Finder di website TWINCE.'].join('\n');
           window.open(buildWhatsAppUrl(msg), '_blank', 'noopener,noreferrer');
@@ -342,6 +275,13 @@ export default function Page() {
       />
       
       <TestimonialsSection />
+
+      <ScentFinderModal
+        isOpen={isQuizOpen}
+        products={PRODUCTS}
+        onClose={() => setIsQuizOpen(false)}
+        onAddToCart={handleAddToCart}
+      />
       
       <CartDrawer />
       

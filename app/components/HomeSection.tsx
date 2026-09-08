@@ -26,6 +26,11 @@ type QuizSectionProps = {
   onRestartQuiz: () => void;
   onAddToCart: (productId: string) => void;
   onOrderWhatsApp: (product: Product) => void;
+  onOpenQuiz: () => void;
+};
+
+type HeroSectionProps = {
+  onOpenQuiz: () => void;
 };
 
 export function ToastContainer() {
@@ -107,7 +112,7 @@ export function MobileMenu() {
   );
 }
 
-export function HeroSection() {
+export function HeroSection({ onOpenQuiz }: HeroSectionProps) {
   return (
     <section id="top" className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
       <div className="absolute inset-0 z-0">
@@ -122,7 +127,7 @@ export function HeroSection() {
         <p className="text-sm md:text-lg text-white/90 font-light leading-relaxed max-w-2xl mx-auto mb-12 tracking-wide">Dibuat dengan ekstraksi bahan nabati premium dan diproduksi secara eksklusif. Setiap semprotan TWINCE bercerita tentang keanggunan, ambisi, dan kemewahan sejati.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <a href="#koleksi" className="group relative px-8 py-4 bg-black hover:bg-zinc-900 text-white border border-white/70 hover:border-white font-semibold tracking-[0.15em] text-xs uppercase rounded-full transition-all duration-300 ease-in-out active:scale-[0.98] overflow-hidden shadow-lg shadow-black/20 w-full sm:w-auto"><span className="hero-cta-primary-label relative z-10 flex items-center justify-center gap-2">Jelajahi Koleksi <i className="fa-solid fa-arrow-right transition-transform duration-300 ease-in-out group-hover:translate-x-1" /></span></a>
-          <a href="#quiz" className="px-8 py-4 border border-white hover:border-white text-white hover:text-white font-semibold tracking-[0.15em] text-xs uppercase rounded-full transition-all duration-300 bg-transparent w-full sm:w-auto">Cari Scent Anda <i className="fa-solid fa-wand-magic-sparkles ml-1" /></a>
+          <button onClick={onOpenQuiz} type="button" className="px-8 py-4 border border-white hover:border-white text-white hover:text-white font-semibold tracking-[0.15em] text-xs uppercase rounded-full transition-all duration-300 bg-transparent w-full sm:w-auto">Cari Scent Anda <i className="fa-solid fa-wand-magic-sparkles ml-1" /></button>
         </div>
       </div>
       <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 text-white/80">
@@ -234,7 +239,7 @@ export function BusinessAssuranceSection() {
 }
 
 // 3. PERSONAL SCENT QUIZ (Sekarang dikendalikan state wizard, bersih tanpa manipulasi ID hidden)
-export function QuizSection({ answers, recommendedProduct, onSelectOption, onRestartQuiz, onAddToCart, onOrderWhatsApp }: QuizSectionProps) {
+export function QuizSection({ answers, recommendedProduct, onSelectOption, onRestartQuiz, onAddToCart, onOrderWhatsApp, onOpenQuiz }: QuizSectionProps) {
   // Menentukan langkah kuis yang aktif berdasarkan data state answers
   const currentStep = !answers.step1 ? 'intro' : !answers.step2 ? 1 : !answers.step3 ? 2 : 3;
 
@@ -264,7 +269,7 @@ export function QuizSection({ answers, recommendedProduct, onSelectOption, onRes
               <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-black border border-black mx-auto text-2xl"><i className="fa-solid fa-wand-magic-sparkles" /></div>
               <h3 className="font-serif text-2xl text-black">Mulai Pencarian Aroma Unikmu</h3>
               <p className="text-zinc-700 text-xs md:text-sm font-light max-w-md mx-auto">Kami akan menganalisis preferensi aktivitas, vibe, dan cuaca favorit Anda demi aroma yang benar-benar memikat.</p>
-              <button onClick={() => onSelectOption(1, '')} className="px-8 py-4 bg-black hover:bg-zinc-900 text-white font-bold tracking-[0.2em] text-xs uppercase rounded-full transition-all duration-300 ease-in-out active:scale-[0.98]" type="button">Mulai Kuis Sekarang</button>
+              <button onClick={onOpenQuiz} className="px-8 py-4 bg-black hover:bg-zinc-900 text-white font-bold tracking-[0.2em] text-xs uppercase rounded-full transition-all duration-300 ease-in-out active:scale-[0.98]" type="button">Mulai Kuis Sekarang</button>
             </div>
           )}
 
