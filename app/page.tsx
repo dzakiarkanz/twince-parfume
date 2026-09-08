@@ -19,6 +19,7 @@ import { useCart } from './context/CartContext';
 import type { Product } from './types/product';
 import { PRODUCTS } from './data/products';
 import ScentFinderModal from './components/ScentFinderModal';
+import AiSommelierModal from './components/AiSommelierModal';
 
 type AnalyticsEventName =
   | 'search_click'
@@ -286,6 +287,7 @@ export default function Page() {
       <CartDrawer />
       
       <FooterSection />
+      <AiSommelierModal onNotify={(message) => showToast(message)} />
       <FloatingWhatsApp waUrl={buildWhatsAppUrl('Halo, saya tertarik dengan parfum TWINCE. Bisa bantu info dan pemesanan?')} />
     </>
   );
