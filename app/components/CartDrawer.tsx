@@ -1,14 +1,17 @@
 'use client';
 
 import { useCart } from '../context/CartContext';
+import { useState } from 'react';
 
 const WA_NUMBER = '6282123354047';
 
 export default function CartDrawer() {
   const { cartItems, isCartOpen, totalPrice, totalItems, setIsCartOpen, updateQuantity, removeFromCart, clearCart } = useCart();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
   const formatPrice = (price: number) => `Rp ${price.toLocaleString('id-ID')}`;
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!cartItems.length) return;
 
     const name = window.prompt('Masukkan nama lengkap untuk pesanan');
@@ -20,26 +23,61 @@ export default function CartDrawer() {
     const cityPostalCode = window.prompt('Masukkan kota & kode pos');
     if (!cityPostalCode?.trim()) return;
 
-    const lines = cartItems.map(({ product, quantity }) => (
-      `- ${product.name} x${quantity} = ${formatPrice(product.price * quantity)}`
-    ));
-    const message = [
-      'Halo Concierge TWINCE, saya ingin memesan Extrait de Parfum:',
-      '',
-      ...lines,
-      '',
-      `Total Tagihan: ${formatPrice(totalPrice)}`,
-      '',
-      'Format Pengiriman:',
-      `Nama Lengkap: ${name.trim()}`,
-      `No. HP: ${phone.trim()}`,
-      `Alamat Pengiriman: ${address.trim()}`,
-      `Kota & Kode Pos: ${cityPostalCode.trim()}`
-    ].join('\n');
+    setCheckoutError('');
+    setIsCheckingOut(true);
 
-    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
-    clearCart();
-    setIsCartOpen(false);
+    try {
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: cartItems.map(({ product, quantity }) => ({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity
+          })),
+          customer: {
+            name: name.trim(),
+            phone: phone.trim(),
+            address: `${address.trim()}, ${cityPostalCode.trim()}`
+          },
+          totalAmount: totalPrice,
+          status: 'PENDING',
+          createdAt: new Date().toISOString()
+        })
+      });
+      const orderPayload = await orderResponse.json() as { success?: boolean; orderId?: string; message?: string };
+      if (!orderResponse.ok || !orderPayload.success || !orderPayload.orderId) {
+        throw new Error(orderPayload.message || 'Pesanan gagal dicatat.');
+      }
+
+      const lines = cartItems.map(({ product, quantity }) => (
+        `- ${product.name} x${quantity} = ${formatPrice(product.price * quantity)}`
+      ));
+      const message = [
+        'Halo Concierge TWINCE, saya ingin memesan Extrait de Parfum:',
+        `Order ID: ${orderPayload.orderId}`,
+        '',
+        ...lines,
+        '',
+        `Total Tagihan: ${formatPrice(totalPrice)}`,
+        '',
+        'Format Pengiriman:',
+        `Nama Lengkap: ${name.trim()}`,
+        `No. HP: ${phone.trim()}`,
+        `Alamat Pengiriman: ${address.trim()}`,
+        `Kota & Kode Pos: ${cityPostalCode.trim()}`
+      ].join('\n');
+
+      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+      clearCart();
+      setIsCartOpen(false);
+    } catch (error) {
+      setCheckoutError(error instanceof Error ? error.message : 'Pesanan gagal dicatat. Silakan coba lagi.');
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   return (
@@ -97,8 +135,9 @@ export default function CartDrawer() {
 
         <footer className="space-y-5 border-t border-white/10 bg-[#0a0a0a] px-6 py-6">
           <div className="flex items-center justify-between text-sm"><span className="text-neutral-400">Subtotal</span><strong className="font-serif text-xl text-white">{formatPrice(totalPrice)}</strong></div>
-          <button type="button" disabled={!cartItems.length} onClick={handleCheckout} className="w-full border border-amber-400 bg-amber-400 px-5 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-950 transition hover:bg-transparent hover:text-amber-400 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-neutral-900 disabled:text-neutral-600">
-            Proses Pembayaran
+          {checkoutError && <p className="text-xs leading-relaxed text-red-300">{checkoutError}</p>}
+          <button type="button" disabled={!cartItems.length || isCheckingOut} onClick={() => void handleCheckout()} className="w-full border border-amber-400 bg-amber-400 px-5 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-950 transition hover:bg-transparent hover:text-amber-400 disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-neutral-900 disabled:text-neutral-600">
+            {isCheckingOut ? 'Mencatat Pesanan...' : 'Proses Pembayaran'}
           </button>
         </footer>
       </aside>
