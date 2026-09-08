@@ -1,32 +1,22 @@
 'use client';
 
 import ThemeToggle from './ThemeToggle';
+import { useState } from 'react';
+import type { Product } from '../types/product';
 
 // --- DEFINISI TYPE DATA (PROPS INTERFACE) ---
-type Product = {
-  id: string;
-  name: string;
-  sku: string;
-  scentType: string;
-  notes: string;
-  price: number;
-  rating: number;
-  stock: number;
-  image: string;
-  desc: string;
-};
-
 type NavBarProps = {
   cartCount: number;
   onSearchClick: () => void;
   onLoginClick: () => void;
+  onCartClick: () => void;
 };
 
 type CollectionSectionProps = {
   products: Product[];
   activeFilter: string;
   onFilterChange: (filter: string) => void;
-  onAddToCart: (productId: string) => void;
+  onAddToCart: (product: Product) => void;
 };
 
 type QuizSectionProps = {
@@ -38,18 +28,12 @@ type QuizSectionProps = {
   onOrderWhatsApp: (product: Product) => void;
 };
 
-type CartDrawerProps = {
-  cartItems: Array<{ product: Product; quantity: number }>;
-  onUpdateQuantity: (productId: string, change: number) => void;
-  onCheckout: () => void;
-};
-
 export function ToastContainer() {
   return <div id="toast-container" className="fixed top-5 right-5 z-50 flex max-w-sm w-full flex-col gap-3 pointer-events-none px-4" aria-live="polite" aria-atomic="true" />;
 }
 
 // 1. NAVBAR (Sekarang menggunakan Looping Menu & Animasi Garis Bawah Premium dari Tengah)
-export function NavBar({ cartCount, onSearchClick, onLoginClick }: NavBarProps) {
+export function NavBar({ cartCount, onSearchClick, onLoginClick, onCartClick }: NavBarProps) {
   // Array menu navigasi agar tidak perlu menulis kode link berulang-ulang
   const menuItems = [
     { name: 'Koleksi', href: '#koleksi' },
@@ -88,7 +72,7 @@ export function NavBar({ cartCount, onSearchClick, onLoginClick }: NavBarProps) 
             <i className="fa-solid fa-magnifying-glass text-lg" />
           </button>
 
-          <button id="cart-btn" aria-label="Open cart" className="nav-icon-btn nav-cart-btn relative" type="button">
+          <button onClick={onCartClick} id="cart-btn" aria-label="Open cart" className="nav-icon-btn nav-cart-btn relative" type="button">
             <i className="fa-solid fa-bag-shopping text-xl" />
             <span id="cart-badge" className={`absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center transition-transform duration-300 ${cartCount > 0 ? 'scale-100' : 'scale-0'}`}>{cartCount}</span>
           </button>
@@ -184,26 +168,18 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
     ? products
     : products.filter((p) => p.scentType.toLowerCase() === activeFilter.toLowerCase());
 
-  const scentToneMap: Record<string, string> = {
-    floral: '#D4A5A5',
-    leaf: '#8FA89B',
-    fresh: '#A2B9B1',
-    sweet: '#E0A96D',
-    woody: '#9C8470'
-  };
-
   return (
-    <section id="koleksi" className="py-20 md:py-24 bg-white relative">
+    <section id="koleksi" className="relative bg-neutral-950 py-20 text-neutral-300 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
-          <div className="space-y-3"><span className="text-xs uppercase tracking-[0.24em] text-black font-bold block">Signature Line</span><h2 className="font-serif text-3xl md:text-5xl text-black font-light">Koleksi Signature Kami</h2></div>
-          <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs tracking-[0.14em] border-b border-black/15 pb-3 md:pb-2">
+          <div className="space-y-3"><span className="block text-xs font-bold uppercase tracking-[0.24em] text-amber-400">Signature Line</span><h2 className="font-serif text-3xl font-light text-white md:text-5xl">Koleksi Signature Kami</h2></div>
+          <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-3 text-xs tracking-[0.14em] md:gap-4 md:pb-2">
             {['Semua', 'Woody', 'Fresh', 'Floral'].map((filter) => (
               <button
                 key={filter}
                 onClick={() => onFilterChange(filter)}
                 aria-pressed={activeFilter === filter}
-                className={`filter-btn pb-2 -mb-[10px] uppercase transition-all duration-300 ease-in-out ${activeFilter === filter ? 'text-black font-semibold' : 'text-zinc-700 hover:text-black'}`}
+                className={`filter-btn -mb-[10px] pb-2 uppercase transition-all duration-300 ease-in-out ${activeFilter === filter ? 'font-semibold text-amber-400' : 'text-neutral-500 hover:text-white'}`}
                 type="button"
               >
                 {filter}
@@ -213,44 +189,11 @@ export function CollectionSection({ products, activeFilter, onFilterChange, onAd
         </div>
 
         <div id="product-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
-          {filteredProducts.map((product, index) => {
-            const scentTone = scentToneMap[product.scentType.toLowerCase()] || '#E0A96D';
-            return (
-              <div
-                key={`${activeFilter}-${product.id}`}
-                className="product-card filter-card-enter group bg-white/90 backdrop-blur-sm border border-black/15 rounded-2xl overflow-hidden shadow-xl hover:border-black/30 transition-all duration-500 ease-in-out flex flex-col justify-between reveal-item is-visible"
-                style={{ animationDelay: `${index * 55}ms` }}
-              >
-                <div className="relative">
-                  <div className="relative aspect-square overflow-hidden bg-white">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.95]" loading="lazy" decoding="async" />
-                    <span style={{ ['--scent-tone' as any]: scentTone }} className="scent-chip absolute top-4 left-4 backdrop-blur-md border text-[10px] tracking-[0.22em] font-bold px-3 py-1 rounded-full uppercase text-black">{product.scentType}</span>
-                  </div>
-                  <div className="p-6 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-serif text-xl text-black tracking-[0.06em]">{product.name}</h3>
-                      <div className="flex items-center text-black text-xs gap-1">
-                        <i className="fa-solid fa-star" />
-                        <span className="text-black font-semibold text-[11px]">{product.rating}</span>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-zinc-700 tracking-[0.1em] font-medium italic">{product.notes}</p>
-                    <p className="text-xs text-zinc-700 line-clamp-2 leading-relaxed font-light">{product.desc}</p>
-                  </div>
-                </div>
-                <div className="p-6 pt-0 border-t border-black/15 flex items-center justify-between mt-auto">
-                  <span className="font-bold text-black text-sm">Rp {product.price.toLocaleString('id-ID')}</span>
-                  <button
-                    onClick={() => onAddToCart(product.id)}
-                    disabled={product.stock <= 0}
-                    className="px-4 py-2 bg-white hover:bg-black text-black hover:text-white border border-black/20 hover:border-black rounded-full text-xs font-semibold tracking-[0.15em] transition-all duration-300 ease-in-out active:scale-[0.98] flex items-center gap-2 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-black"
-                  >
-                    {product.stock > 0 ? 'Add' : 'Sold Out'} <i className="fa-solid fa-bag-shopping" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+          {filteredProducts.map((product, index) => (
+            <div key={`${activeFilter}-${product.id}`} style={{ animationDelay: `${index * 55}ms` }}>
+              <ProductCard product={product} onAddToCart={onAddToCart} />
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -417,58 +360,6 @@ export function TestimonialsSection() {
   );
 }
 
-// 4. CART DRAWER (Sekarang me-render isi belanjaan murni dari state array cartItems React)
-export function CartDrawer({ cartItems, onUpdateQuantity, onCheckout }: CartDrawerProps) {
-  const subtotal = cartItems.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-
-  return (
-    <div id="cart-drawer" className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
-      <div id="cart-backdrop" className="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-500 ease-in-out pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-2 sm:pl-10">
-        <div id="cart-panel" className="w-[min(100vw-0.5rem,28rem)] sm:w-screen sm:max-w-md bg-white border-l border-black pointer-events-auto transform translate-x-full transition-transform duration-500 ease-in-out flex flex-col justify-between shadow-2xl">
-          <div className="px-6 py-6 border-b border-black flex items-center justify-between"><h3 className="font-serif text-lg text-black tracking-wide flex items-center gap-2"><i className="fa-solid fa-bag-shopping text-black" /> Keranjang Belanja</h3><button id="close-cart-btn" aria-label="Close cart" className="text-zinc-700 hover:text-black text-xl" type="button"><i className="fa-solid fa-xmark" /></button></div>
-          
-          <div id="cart-items-container" className="flex-1 overflow-y-auto p-6 space-y-4">
-            {cartItems.length === 0 ? (
-              <div className="h-64 flex flex-col items-center justify-center text-zinc-700 text-center space-y-4">
-                <i className="fa-solid fa-box-open text-4xl text-zinc-700" />
-                <p className="text-sm font-light">Keranjang Anda masih kosong</p>
-              </div>
-            ) : (
-              cartItems.map((item) => (
-                <div key={item.product.id} className="flex gap-4 p-4 bg-white/90 backdrop-blur-sm border border-black/15 rounded-xl items-center">
-                  <div className="w-16 h-16 bg-white rounded-lg overflow-hidden flex-shrink-0">
-                    <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-serif text-black text-sm font-medium truncate">{item.product.name}</h4>
-                    <p className="text-[10px] text-zinc-700 uppercase tracking-widest mt-1">{item.product.scentType}</p>
-                    <p className="text-xs font-semibold text-black mt-1">Rp {item.product.price.toLocaleString('id-ID')}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="flex items-center border border-black/20 rounded-full bg-white">
-                      <button onClick={() => onUpdateQuantity(item.product.id, -1)} className="px-2 py-1 text-xs text-zinc-700 hover:text-black transition-all duration-300 ease-in-out active:scale-95"><i className="fa-solid fa-minus" /></button>
-                      <span className="px-2 text-xs font-bold text-black">{item.quantity}</span>
-                      <button onClick={() => onUpdateQuantity(item.product.id, 1)} className="px-2 py-1 text-xs text-zinc-700 hover:text-black transition-all duration-300 ease-in-out active:scale-95"><i className="fa-solid fa-plus" /></button>
-                    </div>
-                    <button onClick={() => onUpdateQuantity(item.product.id, -item.quantity)} className="text-[10px] text-zinc-700 hover:text-red-500 transition-all duration-300 ease-in-out uppercase tracking-[0.14em] font-semibold">Hapus</button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          <div className="p-6 border-t border-black/15 space-y-6 bg-white/90 backdrop-blur-sm">
-            <div className="flex justify-between text-sm tracking-wide"><span className="text-zinc-700">Subtotal:</span><span id="cart-subtotal" className="font-bold text-black">Rp {subtotal.toLocaleString('id-ID')}</span></div>
-            <p className="text-[10px] text-zinc-700 leading-normal">Estimasi biaya pengiriman dan pajak dihitung pada saat penyelesaian transaksi pembayaran berikutnya.</p>
-            <button onClick={onCheckout} className="w-full py-4 bg-black hover:bg-zinc-900 text-white font-bold tracking-[0.2em] text-xs uppercase rounded-full transition-all duration-300 ease-in-out active:scale-[0.98]" type="button">Proses Pembayaran</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function FooterSection() {
   return (
     <footer id="tentang" className="bg-white border-t border-black pt-20 pb-12">
@@ -486,4 +377,84 @@ export function FooterSection() {
 // 5. FLOATING WHATSAPP (Menerima URL WhatsApp yang dinamis dari Page utama)
 export function FloatingWhatsApp({ waUrl }: { waUrl: string }) {
   return <a id="floating-wa" className="floating-wa" href={waUrl} target="_blank" rel="noopener noreferrer" aria-label="Chat via WhatsApp"><span className="floating-wa-label">Chat WhatsApp</span><span className="sr-only">Chat via WhatsApp</span><i className="fa-brands fa-whatsapp" aria-hidden="true" /></a>;
+}
+
+type ProductCardProps = {
+  product: Product;
+  onAddToCart: (product: Product) => void;
+};
+
+function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const [showPyramid, setShowPyramid] = useState(false);
+
+  return (
+    <article className="product-card filter-card-enter group flex h-full flex-col overflow-hidden rounded-sm border border-white/5 bg-neutral-950 text-neutral-300 shadow-2xl transition-colors duration-500 hover:border-amber-400/40 reveal-item is-visible">
+      <div className="relative aspect-[4/5] overflow-hidden bg-neutral-900">
+        <img
+          src={product.image}
+          alt={product.name}
+          className={`h-full w-full object-cover transition duration-700 ${showPyramid ? 'scale-105 brightness-[0.55]' : 'group-hover:scale-105 brightness-[0.72]'}`}
+          loading="lazy"
+          decoding="async"
+        />
+        {!showPyramid && (
+          <span className="absolute left-5 top-5 z-10 border border-amber-400/50 bg-neutral-950/80 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.24em] text-amber-400 backdrop-blur-sm">
+            {product.scentType}
+          </span>
+        )}
+
+        {showPyramid && (
+          <div className="absolute inset-0 z-10 flex flex-col justify-center bg-black/60 px-6 py-8 backdrop-blur-[2px]">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-400">The Olfactive Pyramid</p>
+            <dl className="space-y-2.5">
+              {[
+                ['Top Notes', product.aromaPyramid.top],
+                ['Heart Notes', product.aromaPyramid.heart],
+                ['Base Notes', product.aromaPyramid.base]
+              ].map(([label, value]) => (
+                <div key={label} className="border-b border-white/10 pb-2 last:border-0">
+                  <dt className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">{label}</dt>
+                  <dd className="font-serif text-xs tracking-wide text-white">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setShowPyramid(!showPyramid)}
+          aria-expanded={showPyramid}
+          className="absolute bottom-3 right-3 z-20 border border-white/30 bg-neutral-950/80 px-3 py-2 text-[10px] uppercase tracking-[0.18em] text-white backdrop-blur-sm transition-colors hover:border-amber-400 hover:text-amber-400"
+        >
+          {showPyramid ? 'Lihat Botol' : 'Lihat Notes'}
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col p-6">
+        <div className="flex items-start justify-between gap-4">
+          <h3 className="font-serif text-2xl tracking-[0.08em] text-white">{product.name}</h3>
+          <span className="flex shrink-0 items-center gap-1 text-xs text-amber-400" aria-label={`Rating ${product.rating} dari 5`}>
+            <i className="fa-solid fa-star" />
+            <span>{product.rating}</span>
+          </span>
+        </div>
+        <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-neutral-500">Extrait de Parfum · 50ml / 1.7 FL. OZ.</p>
+        <p className="mt-5 text-xs italic leading-relaxed text-neutral-400">{product.notes}</p>
+        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-neutral-300">{product.desc}</p>
+
+        <div className="mt-auto flex items-center justify-between gap-4 border-t border-white/5 pt-6">
+          <span className="font-serif text-lg text-white">Rp {product.price.toLocaleString('id-ID')}</span>
+          <button
+            type="button"
+            onClick={() => onAddToCart(product)}
+            disabled={product.stock <= 0}
+            className="border border-white/20 px-4 py-3 text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-200 transition-all hover:border-amber-400 hover:bg-amber-400 hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {product.stock > 0 ? '+ Add to Bag' : 'Unavailable'}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
 }

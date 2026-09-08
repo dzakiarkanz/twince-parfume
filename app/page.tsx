@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { 
-  CartDrawer, 
   CollectionSection, 
   FloatingWhatsApp, 
   FooterSection, 
@@ -15,24 +14,9 @@ import {
   TestimonialsSection, 
   ToastContainer 
 } from './components/HomeSection';
-
-type Product = {
-  id: string;
-  name: string;
-  sku: string;
-  scentType: string;
-  notes: string;
-  price: number;
-  rating: number;
-  stock: number;
-  image: string;
-  desc: string;
-};
-
-type CartLine = {
-  product: Product;
-  quantity: number;
-};
+import CartDrawer from './components/CartDrawer';
+import { useCart } from './context/CartContext';
+import type { Product } from './types/product';
 
 type AnalyticsEventName =
   | 'search_click'
@@ -113,8 +97,13 @@ const PRODUCTS: Product[] = [
     price: 1350000,
     rating: 4.8,
     stock: 12,
-    image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600',
-    desc: 'Aroma udara pagi pesisir pantai yang bersih, dipadu kesegaran citrus murni untuk jiwa yang berenergi bebas.'
+    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&q=85&w=800&h=800',
+    desc: 'Aroma udara pagi pesisir pantai yang bersih, dipadu kesegaran citrus murni untuk jiwa yang berenergi bebas.',
+    aromaPyramid: {
+      top: 'Bergamot, Lemon Zest',
+      heart: 'Marine Accord, Neroli',
+      base: 'White Musk, Driftwood'
+    }
   },
   {
     id: 'p2',
@@ -125,8 +114,13 @@ const PRODUCTS: Product[] = [
     price: 1550000,
     rating: 4.9,
     stock: 9,
-    image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600',
-    desc: 'Reputasi kehangatan api malam hari yang dikelilingi hutan kayu cedar. Sangat elegan dan misterius.'
+    image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=85&w=800&h=800',
+    desc: 'Reputasi kehangatan api malam hari yang dikelilingi hutan kayu cedar. Sangat elegan dan misterius.',
+    aromaPyramid: {
+      top: 'Spiced Cardamom, Pink Pepper',
+      heart: 'Sandalwood, Cedarwood',
+      base: 'Vetiver, Tonka Bean'
+    }
   },
   {
     id: 'p3',
@@ -137,8 +131,13 @@ const PRODUCTS: Product[] = [
     price: 1650000,
     rating: 5.0,
     stock: 6,
-    image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&q=80&w=600',
-    desc: 'Aroma malam yang penuh rahasia dan daya pikat. Intensitas floral gelap yang memikat indra penciuman.'
+    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&q=85&w=800&h=800',
+    desc: 'Aroma malam yang penuh rahasia dan daya pikat. Intensitas floral gelap yang memikat indra penciuman.',
+    aromaPyramid: {
+      top: 'Black Pepper, Bergamot',
+      heart: 'Black Jasmine, Midnight Orchid',
+      base: 'Vanilla Oud, Dark Amber'
+    }
   },
   {
     id: 'p4',
@@ -149,8 +148,13 @@ const PRODUCTS: Product[] = [
     price: 1400000,
     rating: 4.7,
     stock: 8,
-    image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&q=80&w=600',
-    desc: 'Aroma tanah basah setelah hujan berpadu keanggunan lumut basah purba. Membumi dan menenangkan.'
+    image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&sat=-20&exp=-1&w=800&h=800',
+    desc: 'Aroma tanah basah setelah hujan berpadu keanggunan lumut basah purba. Membumi dan menenangkan.',
+    aromaPyramid: {
+      top: 'Green Mandarin, Black Pepper',
+      heart: 'Patchouli, Earthy Moss',
+      base: 'Amberwood, Vetiver'
+    }
   }
 ];
 
@@ -158,7 +162,7 @@ const QUIZ_DEFAULT = { step1: '', step2: '', step3: '' };
 
 export default function Page() {
   // --- REACT STATES (Menggantikan Manipulasi DOM Manual) ---
-  const [cart, setCart] = useState<CartLine[]>([]);
+  const { totalItems, addToCart: addProductToCart, setIsCartOpen } = useCart();
   const [quizAnswers, setQuizAnswers] = useState(QUIZ_DEFAULT);
   const [activeFilter, setActiveFilter] = useState('Semua');
   const [waNumber, setWaNumber] = useState('6282123354047');
@@ -251,16 +255,6 @@ export default function Page() {
     }, 3500);
   };
 
-  const buildCartItems = (lines: CartLine[]) => {
-    return lines.map((line) => ({
-      item_id: line.product.id,
-      item_name: line.product.name,
-      item_category: line.product.scentType,
-      price: line.product.price,
-      quantity: line.quantity
-    }));
-  };
-
   const trackEvent = (eventName: AnalyticsEventName, payload: Record<string, unknown> = {}) => {
     try {
       window.dispatchEvent(new CustomEvent('twince:analytics', { detail: { eventName, payload, ts: Date.now() } }));
@@ -279,70 +273,15 @@ export default function Page() {
   };
 
   // --- LOGIC HANDLERS ---
-  const addToCart = (productId: string) => {
-    const product = PRODUCTS.find((p) => p.id === productId);
-    if (!product) return;
-
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.product.id === productId);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      return [...prevCart, { product, quantity: 1 }];
-    });
-
+  const handleAddToCart = (product: Product) => {
+    addProductToCart(product);
     showToast(`Berhasil menambahkan <strong>${product.name}</strong> ke keranjang.`);
-    trackEvent('add_to_cart', { productId, productName: product.name, scentType: product.scentType, price: product.price });
+    trackEvent('add_to_cart', { productId: product.id, productName: product.name, scentType: product.scentType, price: product.price });
   };
 
-  const updateCartQuantity = (productId: string, change: number) => {
-    setCart((prevCart) => {
-      return prevCart.map((item) => {
-        if (item.product.id === productId) {
-          const newQty = item.quantity + change;
-          return newQty <= 0 ? null : { ...item, quantity: newQty };
-        }
-        return item;
-      }).filter(Boolean) as Array<{ product: Product; quantity: number }>;
-    });
-  };
-
-  const handleCheckout = () => {
-    if (cart.length === 0) {
-      showToast('Keranjang belanja kosong. Harap tambahkan parfum terlebih dahulu.', 'info');
-      return;
-    }
-
-    const name = window.prompt('Masukkan nama lengkap untuk pesanan (contoh: Budi Santoso)');
-    if (!name) return;
-
-    const address = window.prompt('Masukkan alamat / detail pengantaran (contoh: Kost X, Jl. Mawar 12)');
-    if (!address) return;
-
-    let subtotal = 0;
-    const lines = cart.map((item) => {
-      subtotal += item.product.price * item.quantity;
-      return `- ${item.product.name} x${item.quantity} (Rp ${item.product.price.toLocaleString('id-ID')})`;
-    });
-    const ga4Items = buildCartItems(cart);
-
-    const message = [
-      'Halo Kak, saya mau order parfum TWINCE.',
-      `Nama: ${name}`,
-      'Pesanan:',
-      ...lines,
-      `Subtotal: Rp ${subtotal.toLocaleString('id-ID')}`,
-      `Alamat/Detail: ${address}`,
-      'Mohon konfirmasi ketersediaan stok dan ongkir. Terima kasih.'
-    ].join('\n');
-
-    window.open(buildWhatsAppUrl(message), '_blank', 'noopener,noreferrer');
-    trackEvent('generate_lead', { method: 'whatsapp', value: subtotal, currency: 'IDR', items: ga4Items });
-    setCart([]); // Kosongkan keranjang setelah checkout sukses
-    document.getElementById('close-cart-btn')?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    trackEvent('begin_checkout', { subtotal, items: ga4Items });
+  const handleQuizAddToCart = (productId: string) => {
+    const product = PRODUCTS.find((item) => item.id === productId);
+    if (product) handleAddToCart(product);
   };
 
   // --- QUIZ LOGIC ---
@@ -361,7 +300,8 @@ export default function Page() {
     <>
       <ToastContainer />
       <NavBar
-        cartCount={cart.reduce((acc, item) => acc + item.quantity, 0)}
+        cartCount={totalItems}
+        onCartClick={() => setIsCartOpen(true)}
         onSearchClick={() => { showToast('Fitur pencarian eksklusif sedang dikembangkan.', 'info'); trackEvent('search_click'); }}
         onLoginClick={() => { trackEvent('login_click'); window.location.assign('/login'); }}
       />
@@ -385,7 +325,7 @@ export default function Page() {
           }));
           trackEvent('filter_products', { filter, items: filteredItems });
         }} 
-        onAddToCart={addToCart} 
+        onAddToCart={handleAddToCart}
       />
       
       {/* Kirim State dan fungsi Handler ke dalam komponen QuizSection */}
@@ -394,7 +334,7 @@ export default function Page() {
         recommendedProduct={getRecommendedProduct()}
         onSelectOption={handleSelectOption}
         onRestartQuiz={() => setQuizAnswers(QUIZ_DEFAULT)}
-        onAddToCart={addToCart}
+        onAddToCart={handleQuizAddToCart}
         onOrderWhatsApp={(prod: Product) => {
           const msg = [`Halo Kak, saya mau order parfum ${prod.name}.`, `Varian: ${prod.name} - Rp ${prod.price.toLocaleString('id-ID')}`, 'Rekomendasi dari Scent Finder di website TWINCE.'].join('\n');
           window.open(buildWhatsAppUrl(msg), '_blank', 'noopener,noreferrer');
@@ -403,12 +343,7 @@ export default function Page() {
       
       <TestimonialsSection />
       
-      {/* Kirim Data Keranjang langsung ke Drawer */}
-      <CartDrawer 
-        cartItems={cart} 
-        onUpdateQuantity={updateCartQuantity} 
-        onCheckout={handleCheckout} 
-      />
+      <CartDrawer />
       
       <FooterSection />
       <FloatingWhatsApp waUrl={buildWhatsAppUrl('Halo, saya tertarik dengan parfum TWINCE. Bisa bantu info dan pemesanan?')} />

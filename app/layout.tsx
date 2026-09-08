@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import '../style.css';
 // @ts-ignore - global CSS typings
 import './globals.css';
+import { CartProvider } from './context/CartContext';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
@@ -106,7 +107,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         data-wa-number="6282123354047"
         className="bg-white text-black font-sans overflow-x-hidden antialiased"
       >
-        {children}
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );
