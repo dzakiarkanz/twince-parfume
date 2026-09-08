@@ -300,7 +300,7 @@ body {
 }
 
 .hero-gradient {
-  background: linear-gradient(180deg, var(--theme-hero-start) 0%, var(--theme-hero-end) 100%);
+  background: linear-gradient(180deg, var(--theme-hero-start) 0%, rgba(0, 0, 0, 0.58) 50%, var(--theme-hero-end) 100%);
 }
 
 .ambient-blob {

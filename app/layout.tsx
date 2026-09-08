@@ -9,7 +9,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'TWINCE | Extrait De Parfume',
+    default: 'TWINCE | Extrait De Parfum',
     template: '%s | TWINCE'
   },
   description: 'Brand parfum TWINCE: koleksi extrait de parfum, scent finder quiz, dan pemesanan cepat via WhatsApp.',
@@ -28,12 +28,12 @@ export const metadata: Metadata = {
     locale: 'id_ID',
     url: siteUrl,
     siteName: 'TWINCE',
-    title: 'TWINCE | Extrait De Parfume',
+    title: 'TWINCE | Extrait De Parfum',
     description: 'Temukan aroma khasmu melalui koleksi signature dan scent finder quiz dari TWINCE.'
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TWINCE | Extrait De Parfume',
+    title: 'TWINCE | Extrait De Parfum',
     description: 'Temukan aroma khasmu melalui koleksi signature dan scent finder quiz dari TWINCE.'
   },
   robots: {
