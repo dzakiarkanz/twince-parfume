@@ -93,7 +93,7 @@ export default function CartDrawer() {
           <div>
             <p className="text-[10px] uppercase tracking-[0.28em] text-amber-400">TWINCE</p>
             <h2 className="mt-1 font-serif text-2xl text-white">Keranjang Belanja</h2>
-            <p className="mt-1 text-xs text-neutral-500">{totalItems} item{totalItems === 1 ? '' : 's'}</p>
+            <p className="mt-1 text-xs text-neutral-500">{totalItems} item</p>
           </div>
           <button type="button" onClick={() => setIsCartOpen(false)} aria-label="Tutup keranjang" className="text-2xl text-neutral-400 transition-colors hover:text-amber-400">
             <i className="fa-solid fa-xmark" />

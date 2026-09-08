@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useCart } from '../context/CartContext';
 import { PRODUCTS } from '../data/products';
 import type { Product } from '../types/product';
@@ -41,6 +41,51 @@ export default function AiSommelierModal({ onNotify }: AiSommelierModalProps) {
   const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const draggingRef = useRef(false);
+  const windowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (event: globalThis.MouseEvent) => {
+      if (!draggingRef.current) return;
+      const modal = windowRef.current;
+      if (!modal) return;
+      const baseLeft = 24;
+      const baseBottom = 96;
+      const minX = -baseLeft;
+      const maxX = Math.max(minX, window.innerWidth - baseLeft - modal.offsetWidth);
+      const baseTop = window.innerHeight - baseBottom - modal.offsetHeight;
+      const minY = -baseTop;
+      const maxY = Math.max(minY, window.innerHeight - baseBottom - modal.offsetHeight);
+      setPosition({
+        x: Math.min(maxX, Math.max(minX, event.clientX - dragOffset.current.x)),
+        y: Math.min(maxY, Math.max(minY, event.clientY - dragOffset.current.y))
+      });
+    };
+    const handleMouseUp = () => {
+      draggingRef.current = false;
+      setIsDragging(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
+  const handleDragStart = (event: MouseEvent<HTMLElement>) => {
+    if (event.button !== 0) return;
+    draggingRef.current = true;
+    dragOffset.current = {
+      x: event.clientX - position.x,
+      y: event.clientY - position.y
+    };
+    setIsDragging(true);
+  };
 
   const handleReset = () => {
     setInputText('');
@@ -87,19 +132,25 @@ export default function AiSommelierModal({ onNotify }: AiSommelierModalProps) {
 
   return (
     <>
-      <button type="button" onClick={() => setIsOpen(true)} className="group fixed bottom-6 left-6 z-40 flex items-center gap-2.5 whitespace-nowrap rounded-full border border-amber-500/40 bg-neutral-950/90 px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.25em] text-amber-200 shadow-[0_4px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_25px_rgba(217,119,6,0.25)]" aria-label="Buka AI Sommelier">
+      {!isOpen && <button type="button" onClick={() => setIsOpen(true)} className="group fixed bottom-6 left-6 z-40 flex items-center gap-2.5 whitespace-nowrap rounded-full border border-amber-500/40 bg-neutral-950/90 px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.25em] text-amber-200 shadow-[0_4px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_25px_rgba(217,119,6,0.25)]" aria-label="Buka AI Sommelier">
         <i className="fa-solid fa-sparkles mr-2 h-3.5 w-3.5 text-amber-400 transition-colors duration-300 group-hover:text-amber-200" aria-hidden="true" />
         <span className="transition-colors duration-300 group-hover:text-amber-200">AI Sommelier</span>
-      </button>
+      </button>}
 
       {isOpen && (
-        <div className="fixed inset-0 z-[70] flex items-end justify-end bg-black/65 p-4 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="ai-sommelier-title">
-          <div className="w-full max-w-md overflow-hidden rounded-lg border border-white/10 bg-neutral-950 text-neutral-300 shadow-2xl">
-            <header className="flex items-start justify-between border-b border-white/10 px-5 py-5">
+        <div
+          className={`fixed bottom-24 left-6 z-50 w-[380px] sm:w-[420px] ${isDragging ? 'cursor-grabbing' : ''}`}
+          style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)`, willChange: 'transform' }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="ai-sommelier-title"
+        >
+          <div ref={windowRef} className="overflow-hidden rounded-xl border border-white/15 bg-neutral-950/95 text-neutral-300 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+            <header onMouseDown={handleDragStart} className={`flex select-none items-start justify-between border-b border-white/10 px-5 py-5 ${isDragging ? 'cursor-grabbing' : 'cursor-grab active:cursor-grabbing'}`}>
               <div><p className="text-[10px] uppercase tracking-[0.28em] text-amber-400">TWINCE Concierge</p><h2 id="ai-sommelier-title" className="mt-1 font-serif text-2xl text-white">AI Fragrance Sommelier</h2></div>
               <div className="flex items-center gap-4">
-                <button type="button" onClick={handleReset} title="Mulai Sesi Baru" aria-label="Mulai Sesi Baru" className="flex items-center gap-1.5 text-[10px] tracking-wider text-neutral-400 transition-colors hover:text-amber-300"><i className="fa-solid fa-rotate-left" />Sesi Baru</button>
-                <button type="button" onClick={() => setIsOpen(false)} aria-label="Tutup AI Sommelier" className="text-xl text-neutral-500 transition hover:text-amber-400"><i className="fa-solid fa-xmark" /></button>
+                <button type="button" onMouseDown={(event) => event.stopPropagation()} onClick={handleReset} title="Mulai Sesi Baru" aria-label="Mulai Sesi Baru" className="flex items-center gap-1.5 text-[10px] tracking-wider text-neutral-400 transition-colors hover:text-amber-300"><i className="fa-solid fa-rotate-left" />Sesi Baru</button>
+                <button type="button" onMouseDown={(event) => event.stopPropagation()} onClick={() => setIsOpen(false)} aria-label="Tutup AI Sommelier" className="text-xl text-neutral-500 transition hover:text-amber-400"><i className="fa-solid fa-xmark" /></button>
               </div>
             </header>
 
