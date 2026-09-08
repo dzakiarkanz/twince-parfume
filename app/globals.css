@@ -145,6 +145,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.sommelier-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(115, 115, 115, 0.5) transparent;
+}
+
+.sommelier-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sommelier-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sommelier-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(115, 115, 115, 0.5);
+  border-radius: 999px;
+}
+
 .text-black {
   color: var(--theme-text) !important;
 }
