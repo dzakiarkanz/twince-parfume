@@ -53,7 +53,9 @@ export default function ScentFinderModal({ isOpen, products, onClose, onAddToCar
     return result;
   }, {});
   const recommendedId = Object.entries(score).sort(([, left], [, right]) => right - left)[0]?.[0] || 'p1';
-  const recommended = products.find((product) => product.id === recommendedId) || products[0];
+  const indexMap: Record<string, number> = { p1: 0, p2: 1, p3: 2, p4: 3 };
+  const targetIndex = indexMap[recommendedId] ?? 0;
+  const recommended = products.find((product) => product.id === recommendedId) || products[targetIndex] || products[0];
   const completed = answers.length === QUESTIONS.length;
 
   const choose = (answer: string) => {
@@ -97,7 +99,7 @@ export default function ScentFinderModal({ isOpen, products, onClose, onAddToCar
               <p className="text-xs uppercase tracking-[0.28em] text-amber-400">Rekomendasi untuk Anda</p>
               <div className="mt-6 grid items-center gap-8 border border-white/10 bg-white/[0.03] p-5 sm:grid-cols-[minmax(0,220px)_1fr] sm:p-7">
                 <img src={recommended.image} alt={recommended.name} className="aspect-square w-full object-cover brightness-90" />
-                <div><span className="text-[10px] uppercase tracking-[0.24em] text-neutral-500">{recommended.scentType} · Extrait de Parfum</span><h3 className="mt-2 font-serif text-4xl text-white">{recommended.name}</h3><p className="mt-4 text-sm leading-relaxed text-neutral-300">{REASONS[recommended.id]}</p><p className="mt-4 font-serif text-xl text-amber-400">Rp {recommended.price.toLocaleString('id-ID')}</p><button type="button" onClick={() => { onAddToCart(recommended); close(); }} className="mt-6 border border-amber-400 bg-amber-400 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-950 transition hover:bg-transparent hover:text-amber-400">+ Tambahkan ke Bag</button></div>
+                <div><span className="text-[10px] uppercase tracking-[0.24em] text-neutral-500">{recommended.scentType} · Extrait de Parfum</span><h3 className="mt-2 font-serif text-4xl text-white">{recommended.name}</h3><p className="mt-4 text-sm leading-relaxed text-neutral-300">{REASONS[recommended.id] || REASONS[recommendedId] || recommended.desc}</p><p className="mt-4 font-serif text-xl text-amber-400">Rp {recommended.price.toLocaleString('id-ID')}</p><button type="button" onClick={() => { onAddToCart(recommended); close(); }} className="mt-6 border border-amber-400 bg-amber-400 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-950 transition hover:bg-transparent hover:text-amber-400">+ Tambahkan ke Bag</button></div>
               </div>
               <button type="button" onClick={reset} className="mt-6 text-xs uppercase tracking-[0.18em] text-neutral-500 transition hover:text-amber-400">Ulangi Kuis</button>
             </div>

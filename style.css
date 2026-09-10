@@ -452,6 +452,7 @@ h1, h2, h3, .brand-mark, .section-kicker {
     background: linear-gradient(135deg, rgba(212, 175, 55, 0.06), transparent 48%);
     opacity: 0;
     transition: opacity 0.25s ease;
+    pointer-events: none;
 }
 
 .product-card:hover::before { opacity: 1; }

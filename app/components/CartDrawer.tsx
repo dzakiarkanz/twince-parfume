@@ -31,20 +31,13 @@ export default function CartDrawer() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          customerName: name.trim(),
+          customerPhone: phone.trim(),
+          shippingAddress: `${address.trim()}, ${cityPostalCode.trim()}`,
           items: cartItems.map(({ product, quantity }) => ({
-            id: product.id,
-            name: product.name,
-            price: product.price,
+            productId: product.id,
             quantity
-          })),
-          customer: {
-            name: name.trim(),
-            phone: phone.trim(),
-            address: `${address.trim()}, ${cityPostalCode.trim()}`
-          },
-          totalAmount: totalPrice,
-          status: 'PENDING',
-          createdAt: new Date().toISOString()
+          }))
         })
       });
       const orderPayload = await orderResponse.json() as { success?: boolean; orderId?: string; message?: string };
@@ -81,14 +74,27 @@ export default function CartDrawer() {
   };
 
   return (
-    <div className={`fixed inset-0 z-50 transition ${isCartOpen ? 'pointer-events-auto' : 'pointer-events-none'}`} aria-hidden={!isCartOpen}>
+    <div
+      className={`fixed inset-0 z-50 transition-opacity duration-300 ${
+        isCartOpen ? 'block opacity-100 pointer-events-auto' : 'hidden opacity-0 pointer-events-none'
+      }`}
+      style={{ zIndex: 9999 }}
+      aria-hidden={!isCartOpen}
+    >
       <button
         type="button"
         aria-label="Tutup keranjang"
         onClick={() => setIsCartOpen(false)}
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${isCartOpen ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+          isCartOpen ? 'opacity-100' : 'opacity-0'
+        }`}
       />
-      <aside className={`absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-white/10 bg-[#0a0a0a] text-neutral-300 shadow-2xl transition-transform duration-300 ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`} aria-label="Keranjang belanja">
+      <aside
+        className={`absolute inset-y-0 right-0 z-10 flex w-full max-w-md flex-col border-l border-white/10 bg-[#0a0a0a] text-neutral-300 shadow-2xl transition-transform duration-300 ease-in-out ${
+          isCartOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        aria-label="Keranjang belanja"
+      >
         <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
           <div>
             <p className="text-[10px] uppercase tracking-[0.28em] text-amber-400">TWINCE</p>
@@ -113,7 +119,7 @@ export default function CartDrawer() {
             <div className="space-y-5">
               {cartItems.map(({ product, quantity }) => (
                 <article key={product.id} className="flex gap-4 border-b border-white/10 pb-5">
-                  <img src={product.image} alt={product.name} className="h-24 w-20 shrink-0 object-cover brightness-75" loading="lazy" />
+                  <img src={product.imageUrl || product.image} alt={product.name} className="h-24 w-20 shrink-0 object-cover brightness-75" loading="lazy" />
                   <div className="min-w-0 flex-1">
                     <h3 className="font-serif text-lg text-white">{product.name}</h3>
                     <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-neutral-500">Extrait de Parfum · 50ml / 1.7 FL. OZ.</p>

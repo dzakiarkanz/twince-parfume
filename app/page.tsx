@@ -92,13 +92,96 @@ const GA4_EVENT_MAP: Record<AnalyticsEventName, (payload: Record<string, unknown
 
 const QUIZ_DEFAULT = { step1: '', step2: '', step3: '' };
 
+type BackendProduct = {
+  id: string;
+  sku: string;
+  name: string;
+  slug?: string;
+  concentration?: string;
+  price: number;
+  stockQuantity?: number;
+  topNotes?: string;
+  heartNotes?: string;
+  baseNotes?: string;
+  imageUrl?: string;
+  isActive?: boolean;
+};
+
+function mapBackendProduct(item: BackendProduct, fallbackList: Product[]): Product {
+  const fallback = fallbackList.find((p) => p.name.toLowerCase() === item.name.toLowerCase()) || fallbackList[0];
+  const scentType =
+    item.slug === 'aether' ? 'Fresh' :
+    item.slug === 'ignis' ? 'Woody' :
+    item.slug === 'nox' ? 'Floral' :
+    item.slug === 'terra' ? 'Woody' :
+    fallback?.scentType || 'Fresh';
+
+  const notes = [item.topNotes, item.heartNotes, item.baseNotes].filter(Boolean).join(', ') || fallback?.notes || '';
+  const image: string = (item.imageUrl && (item.imageUrl.startsWith('http://') || item.imageUrl.startsWith('https://')))
+    ? item.imageUrl
+    : (fallback?.imageUrl || fallback?.image || PRODUCTS[0].imageUrl || PRODUCTS[0].image || '');
+
+  return {
+    ...item,
+    id: item.id,
+    sku: item.sku,
+    name: item.name,
+    slug: item.slug || fallback?.slug,
+    concentration: item.concentration || fallback?.concentration || 'Extrait de Parfum',
+    price: Number(item.price),
+    stockQuantity: item.stockQuantity ?? fallback?.stockQuantity ?? fallback?.stock ?? 10,
+    stock: item.stockQuantity ?? fallback?.stockQuantity ?? fallback?.stock ?? 10,
+    imageUrl: image,
+    image,
+    scentType,
+    notes,
+    rating: fallback?.rating || 4.9,
+    desc: fallback?.desc || `${item.name} Extrait de Parfum.`,
+    aromaPyramid: {
+      top: item.topNotes || fallback?.aromaPyramid?.top || 'Top Notes',
+      heart: item.heartNotes || fallback?.aromaPyramid?.heart || 'Heart Notes',
+      base: item.baseNotes || fallback?.aromaPyramid?.base || 'Base Notes'
+    }
+  };
+}
+
 export default function Page() {
   // --- REACT STATES (Menggantikan Manipulasi DOM Manual) ---
   const { totalItems, addToCart: addProductToCart, setIsCartOpen } = useCart();
+  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [quizAnswers, setQuizAnswers] = useState(QUIZ_DEFAULT);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState('Semua');
   const [waNumber, setWaNumber] = useState('6282123354047');
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadDynamicProducts() {
+      try {
+        const response = await fetch('http://localhost:8080/api/v1/products');
+        if (!response.ok) {
+          throw new Error(`Status ${response.status}`);
+        }
+        const data = (await response.json()) as BackendProduct[];
+        if (Array.isArray(data) && data.length > 0 && isMounted) {
+          const mapped = data.map((item) => mapBackendProduct(item, PRODUCTS));
+          setProducts(mapped);
+        }
+      } catch (error) {
+        console.warn('Gagal memuat produk dari Spring Boot backend, fallback ke produk lokal:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingProducts(false);
+        }
+      }
+    }
+
+    loadDynamicProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     // 1. Setup inisialisasi kelas animasi
@@ -207,14 +290,16 @@ export default function Page() {
 
   // --- LOGIC HANDLERS ---
   const handleAddToCart = (product: Product) => {
-    addProductToCart(product);
     showToast(`Berhasil menambahkan <strong>${product.name}</strong> ke keranjang.`);
     trackEvent('add_to_cart', { productId: product.id, productName: product.name, scentType: product.scentType, price: product.price });
   };
 
   const handleQuizAddToCart = (productId: string) => {
-    const product = PRODUCTS.find((item) => item.id === productId);
-    if (product) handleAddToCart(product);
+    const product = products.find((item) => item.id === productId);
+    if (product) {
+      addProductToCart(product);
+      handleAddToCart(product);
+    }
   };
 
   // --- QUIZ LOGIC ---
@@ -223,10 +308,10 @@ export default function Page() {
   };
 
   const getRecommendedProduct = (): Product => {
-    if (quizAnswers.step2 === 'warm' || quizAnswers.step1 === 'romantic') return PRODUCTS[1];
-    if (quizAnswers.step1 === 'bold' || quizAnswers.step2 === 'elegant') return PRODUCTS[2];
-    if (quizAnswers.step3 === 'cold' && quizAnswers.step2 !== 'fresh') return PRODUCTS[3];
-    return PRODUCTS[0];
+    if (quizAnswers.step2 === 'warm' || quizAnswers.step1 === 'romantic') return products[1] || products[0];
+    if (quizAnswers.step1 === 'bold' || quizAnswers.step2 === 'elegant') return products[2] || products[0];
+    if (quizAnswers.step3 === 'cold' && quizAnswers.step2 !== 'fresh') return products[3] || products[0];
+    return products[0];
   };
 
   return (
@@ -245,11 +330,11 @@ export default function Page() {
       
       {/* Kirim State dan fungsi Handler ke dalam komponen CollectionSection */}
       <CollectionSection 
-        products={PRODUCTS} 
+        products={products} 
         activeFilter={activeFilter} 
         onFilterChange={(filter) => {
           setActiveFilter(filter);
-          const filteredItems = PRODUCTS.filter((product) => filter === 'Semua' || product.scentType === filter).map((product) => ({
+          const filteredItems = products.filter((product) => filter === 'Semua' || product.scentType === filter).map((product) => ({
             item_id: product.id,
             item_name: product.name,
             item_category: product.scentType,
@@ -279,9 +364,12 @@ export default function Page() {
 
       <ScentFinderModal
         isOpen={isQuizOpen}
-        products={PRODUCTS}
+        products={products}
         onClose={() => setIsQuizOpen(false)}
-        onAddToCart={handleAddToCart}
+        onAddToCart={(prod) => {
+          addProductToCart(prod);
+          handleAddToCart(prod);
+        }}
       />
       
       <CartDrawer />

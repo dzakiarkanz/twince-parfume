@@ -5,15 +5,28 @@ export type AromaPyramid = {
 };
 
 export type Product = {
+  // Properti utama sesuai JSON Spring Boot backend
   id: string;
-  name: string;
   sku: string;
-  scentType: string;
-  notes: string;
+  name: string;
+  slug?: string;
+  concentration?: string;
   price: number;
-  rating: number;
-  stock: number;
-  image: string;
-  desc: string;
-  aromaPyramid: AromaPyramid;
+  stockQuantity: number;
+  imageUrl: string;
+  topNotes?: string;
+  heartNotes?: string;
+  baseNotes?: string;
+  isActive?: boolean;
+
+  // Properti pendukung UI frontend
+  scentType?: string;
+  notes?: string;
+  rating?: number;
+  desc?: string;
+  aromaPyramid?: AromaPyramid;
+
+  // Alias untuk kompatibilitas ke belakang
+  stock?: number;
+  image?: string;
 };

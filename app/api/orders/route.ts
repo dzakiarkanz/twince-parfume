@@ -1,77 +1,117 @@
 import { NextResponse } from 'next/server';
-import { saveOrder, type OrderCustomer, type OrderItem } from '../../lib/orderStore';
 
-type CreateOrderBody = {
-  items?: unknown;
-  customer?: unknown;
-  totalAmount?: unknown;
-  status?: unknown;
-  createdAt?: unknown;
+const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://localhost:8080/api/v1';
+
+type SpringBootOrderItemDto = {
+  productId: string;
+  quantity: number;
 };
 
-function isOrderItem(value: unknown): value is OrderItem {
-  if (!value || typeof value !== 'object') return false;
-  const item = value as Record<string, unknown>;
-  return typeof item.id === 'string'
-    && typeof item.name === 'string'
-    && typeof item.price === 'number'
-    && Number.isFinite(item.price)
-    && item.price >= 0
-    && typeof item.quantity === 'number'
-    && Number.isInteger(item.quantity)
-    && item.quantity > 0;
-}
-
-function isCustomer(value: unknown): value is OrderCustomer {
-  if (!value || typeof value !== 'object') return false;
-  const customer = value as Record<string, unknown>;
-  return ['name', 'phone', 'address'].every((key) => customer[key] === undefined || typeof customer[key] === 'string');
-}
+type SpringBootOrderDto = {
+  customerName: string;
+  customerPhone: string;
+  shippingAddress: string;
+  items: SpringBootOrderItemDto[];
+};
 
 export async function POST(request: Request) {
-  let body: CreateOrderBody;
+  let body: Record<string, unknown>;
   try {
-    body = await request.json() as CreateOrderBody;
+    body = (await request.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ success: false, message: 'Body JSON tidak valid.' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Format JSON request tidak valid.' }, { status: 400 });
   }
 
-  const items = body.items;
-  const totalAmount = body.totalAmount;
-  const createdAt = body.createdAt;
-  const status = body.status;
+  // Normalisasi data dari frontend (mendukung format DTO langsung maupun nested customer)
+  const customerName = (
+    typeof body.customerName === 'string'
+      ? body.customerName
+      : body.customer && typeof body.customer === 'object' && 'name' in body.customer
+      ? String((body.customer as Record<string, unknown>).name || '')
+      : ''
+  ).trim();
 
-  if (!Array.isArray(items) || items.length === 0 || !items.every(isOrderItem)) {
-    return NextResponse.json({ success: false, message: 'Items pesanan tidak valid.' }, { status: 400 });
+  const customerPhone = (
+    typeof body.customerPhone === 'string'
+      ? body.customerPhone
+      : body.customer && typeof body.customer === 'object' && 'phone' in body.customer
+      ? String((body.customer as Record<string, unknown>).phone || '')
+      : ''
+  ).trim();
+
+  const shippingAddress = (
+    typeof body.shippingAddress === 'string'
+      ? body.shippingAddress
+      : body.customer && typeof body.customer === 'object' && 'address' in body.customer
+      ? String((body.customer as Record<string, unknown>).address || '')
+      : ''
+  ).trim();
+
+  const rawItems = Array.isArray(body.items) ? body.items : [];
+  const items: SpringBootOrderItemDto[] = rawItems
+    .map((item: unknown) => {
+      if (!item || typeof item !== 'object') return null;
+      const obj = item as Record<string, unknown>;
+      const productId = typeof obj.productId === 'string' ? obj.productId : typeof obj.id === 'string' ? obj.id : '';
+      const quantity = typeof obj.quantity === 'number' && Number.isInteger(obj.quantity) ? obj.quantity : 1;
+      return { productId: productId.trim(), quantity };
+    })
+    .filter((item): item is SpringBootOrderItemDto => Boolean(item && item.productId && item.quantity > 0));
+
+  // Validasi input sebelum dikirim ke Spring Boot
+  if (!customerName) {
+    return NextResponse.json({ success: false, message: 'Nama pelanggan (customerName) wajib diisi.' }, { status: 400 });
   }
-  if (!isCustomer(body.customer)) {
-    return NextResponse.json({ success: false, message: 'Data customer tidak valid.' }, { status: 400 });
+  if (!customerPhone) {
+    return NextResponse.json({ success: false, message: 'Nomor telepon (customerPhone) wajib diisi.' }, { status: 400 });
   }
-  if (typeof totalAmount !== 'number' || !Number.isFinite(totalAmount) || totalAmount < 0) {
-    return NextResponse.json({ success: false, message: 'Total pesanan tidak valid.' }, { status: 400 });
+  if (!shippingAddress) {
+    return NextResponse.json({ success: false, message: 'Alamat pengiriman (shippingAddress) wajib diisi.' }, { status: 400 });
   }
-  const calculatedTotal = items.reduce((total, item) => total + item.price * item.quantity, 0);
-  if (calculatedTotal !== totalAmount) {
-    return NextResponse.json({ success: false, message: 'Total pesanan tidak sesuai dengan item.' }, { status: 400 });
-  }
-  if (status !== 'PENDING' && status !== 'CONFIRMED') {
-    return NextResponse.json({ success: false, message: 'Status pesanan tidak valid.' }, { status: 400 });
-  }
-  if (typeof createdAt !== 'string' || Number.isNaN(Date.parse(createdAt))) {
-    return NextResponse.json({ success: false, message: 'createdAt harus berupa tanggal ISO yang valid.' }, { status: 400 });
+  if (items.length === 0) {
+    return NextResponse.json({ success: false, message: 'Daftar produk pesanan (items) harus memiliki minimal 1 item yang valid.' }, { status: 400 });
   }
 
-  const order = saveOrder({
-    items,
-    customer: body.customer && typeof body.customer === 'object' ? body.customer as OrderCustomer : {},
-    totalAmount,
-    status,
-    createdAt
-  });
+  const payload: SpringBootOrderDto = {
+    customerName,
+    customerPhone,
+    shippingAddress,
+    items
+  };
 
-  return NextResponse.json({
-    success: true,
-    orderId: order.orderId,
-    message: 'Pesanan berhasil dicatat'
-  }, { status: 201 });
+  try {
+    const backendResponse = await fetch(`${BACKEND_API_URL}/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await backendResponse.json().catch(() => null);
+
+    if (!backendResponse.ok) {
+      const errorMessage = data?.message || data?.error || 'Gagal membuat pesanan di backend Spring Boot.';
+      return NextResponse.json({ success: false, message: errorMessage }, { status: backendResponse.status });
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        orderId: data?.orderNumber || data?.id,
+        order: data,
+        message: 'Pesanan berhasil dibuat'
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error forwarding order to Spring Boot:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Gagal terhubung ke backend Spring Boot di http://localhost:8080. Pastikan server aktif.'
+      },
+      { status: 502 }
+    );
+  }
 }

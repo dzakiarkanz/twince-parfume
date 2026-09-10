@@ -3,6 +3,7 @@
 import ThemeToggle from './ThemeToggle';
 import { useState } from 'react';
 import type { Product } from '../types/product';
+import { useCart } from '../context/CartContext';
 
 // --- DEFINISI TYPE DATA (PROPS INTERFACE) ---
 type NavBarProps = {
@@ -171,7 +172,7 @@ export function PhilosophySection() {
 export function CollectionSection({ products, activeFilter, onFilterChange, onAddToCart }: CollectionSectionProps) {
   const filteredProducts = activeFilter === 'Semua'
     ? products
-    : products.filter((p) => p.scentType.toLowerCase() === activeFilter.toLowerCase());
+    : products.filter((p) => (p.scentType || '').toLowerCase() === activeFilter.toLowerCase());
 
   return (
     <section id="koleksi" className="relative bg-neutral-950 py-20 text-neutral-300 md:py-24">
@@ -251,7 +252,7 @@ export function QuizSection({ answers, recommendedProduct, onSelectOption, onRes
     woody: '#9C8470'
   };
 
-  const recommendationTone = scentToneMap[recommendedProduct.scentType.toLowerCase()] || '#E0A96D';
+  const recommendationTone = scentToneMap[(recommendedProduct.scentType || 'fresh').toLowerCase()] || '#E0A96D';
 
   return (
     <section id="quiz" className="py-28 md:py-32 bg-white border-y border-black relative">
@@ -379,7 +380,6 @@ export function FooterSection() {
   );
 }
 
-// 5. FLOATING WHATSAPP (Menerima URL WhatsApp yang dinamis dari Page utama)
 export function FloatingWhatsApp({ waUrl }: { waUrl: string }) {
   return <a id="floating-wa" className="floating-wa" href={waUrl} target="_blank" rel="noopener noreferrer" aria-label="Chat via WhatsApp"><span className="floating-wa-label">Chat WhatsApp</span><span className="sr-only">Chat via WhatsApp</span><i className="fa-brands fa-whatsapp" aria-hidden="true" /></a>;
 }
@@ -390,13 +390,18 @@ type ProductCardProps = {
 };
 
 function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const { addToCart, setIsCartOpen } = useCart();
   const [showPyramid, setShowPyramid] = useState(false);
+  const displayImage = product.imageUrl || product.image || '';
+  const currentStock = product.stockQuantity ?? product.stock ?? 10;
+  const isAvailable = currentStock > 0;
+  const scentLabel = product.scentType || product.concentration || 'Signature';
 
   return (
     <article className="product-card filter-card-enter group flex h-full flex-col overflow-hidden rounded-sm border border-white/5 bg-neutral-950 text-neutral-300 shadow-2xl transition-colors duration-500 hover:border-amber-400/40 reveal-item is-visible">
       <div className="relative aspect-[4/5] overflow-hidden bg-neutral-900">
         <img
-          src={product.image}
+          src={displayImage}
           alt={product.name}
           className={`h-full w-full object-cover transition duration-700 ${showPyramid ? 'scale-105 brightness-[0.55]' : 'group-hover:scale-105 brightness-[0.72]'}`}
           loading="lazy"
@@ -404,7 +409,7 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
         />
         {!showPyramid && (
           <span className="absolute left-5 top-5 z-10 border border-amber-400/50 bg-neutral-950/80 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.24em] text-amber-400 backdrop-blur-sm">
-            {product.scentType}
+            {scentLabel}
           </span>
         )}
 
@@ -413,9 +418,9 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.25em] text-amber-400">The Olfactive Pyramid</p>
             <dl className="space-y-2.5">
               {[
-                ['Top Notes', product.aromaPyramid.top],
-                ['Heart Notes', product.aromaPyramid.heart],
-                ['Base Notes', product.aromaPyramid.base]
+                ['Top Notes', product.aromaPyramid?.top || product.topNotes || '-'],
+                ['Heart Notes', product.aromaPyramid?.heart || product.heartNotes || '-'],
+                ['Base Notes', product.aromaPyramid?.base || product.baseNotes || '-']
               ].map(([label, value]) => (
                 <div key={label} className="border-b border-white/10 pb-2 last:border-0">
                   <dt className="text-[10px] font-medium uppercase tracking-wider text-neutral-400">{label}</dt>
@@ -444,19 +449,26 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
             <span>{product.rating}</span>
           </span>
         </div>
-        <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-neutral-500">Extrait de Parfum · 50ml / 1.7 FL. OZ.</p>
-        <p className="mt-5 text-xs italic leading-relaxed text-neutral-400">{product.notes}</p>
-        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-neutral-300">{product.desc}</p>
+        <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-neutral-500">{product.concentration || 'Extrait de Parfum'} · 50ml / 1.7 FL. OZ.</p>
+        <p className="mt-5 text-xs italic leading-relaxed text-neutral-400">{product.notes || [product.topNotes, product.heartNotes, product.baseNotes].filter(Boolean).join(', ')}</p>
+        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-neutral-300">{product.desc || `${product.name} Extrait de Parfum.`}</p>
 
         <div className="mt-auto flex items-center justify-between gap-4 border-t border-white/5 pt-6">
           <span className="font-serif text-lg text-white">Rp {product.price.toLocaleString('id-ID')}</span>
           <button
             type="button"
-            onClick={() => onAddToCart(product)}
-            disabled={product.stock <= 0}
-            className="border border-white/20 px-4 py-3 text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-200 transition-all hover:border-amber-400 hover:bg-amber-400 hover:text-neutral-950 active:scale-95 active:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log(">> TOMBOL ADD TO BAG DIKLIK:", product);
+              addToCart(product);
+              setIsCartOpen(true);
+              onAddToCart?.(product);
+            }}
+            disabled={!isAvailable}
+            className="relative z-30 pointer-events-auto cursor-pointer border border-white/20 px-4 py-3 text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-200 transition-all hover:border-amber-400 hover:bg-amber-400 hover:text-neutral-950 active:scale-95 active:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {product.stock > 0 ? '+ Add to Bag' : 'Unavailable'}
+            {isAvailable ? '+ Add to Bag' : 'Unavailable'}
           </button>
         </div>
       </div>

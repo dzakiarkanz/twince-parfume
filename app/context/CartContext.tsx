@@ -45,21 +45,51 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cartItems, hasLoadedCart]);
 
   const addToCart = (product: Product) => {
+    console.log(">> ITEM MASUK CART CONTEXT:", product);
+    const stockQuantity = product.stockQuantity ?? product.stock ?? 10;
+    const imageUrl = product.imageUrl || product.image || '';
+
+    // Pemetaan field produk sesuai backend Spring Boot
+    const normalizedProduct: Product = {
+      ...product,
+      id: String(product.id),
+      name: String(product.name || 'TWINCE Perfume'),
+      price: Number(product.price) || 0,
+      imageUrl,
+      image: imageUrl,
+      stockQuantity,
+      stock: stockQuantity,
+      sku: product.sku || ''
+    };
+
     setCartItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.product.id === product.id);
+      const existingItem = currentItems.find((item) => item.product.id === normalizedProduct.id);
       if (existingItem) {
-        return currentItems.map((item) => item.product.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item);
+        if (existingItem.quantity >= stockQuantity) {
+          return currentItems;
+        }
+        return currentItems.map((item) =>
+          item.product.id === normalizedProduct.id
+            ? { ...item, quantity: item.quantity + 1, product: normalizedProduct }
+            : item
+        );
       }
-      return [...currentItems, { product, quantity: 1 }];
+      return [...currentItems, { product: normalizedProduct, quantity: 1 }];
     });
+
+    // Otomatis ubah state isCartOpen menjadi true agar drawer langsung muncul
     setIsCartOpen(true);
   };
 
   const updateQuantity = (id: string, delta: number) => {
     setCartItems((currentItems) => currentItems
-      .map((item) => item.product.id === id ? { ...item, quantity: item.quantity + delta } : item)
+      .map((item) => {
+        if (item.product.id !== id) return item;
+        const availableStock = item.product.stockQuantity ?? item.product.stock ?? 999;
+        const newQuantity = item.quantity + delta;
+        if (newQuantity > availableStock) return item;
+        return { ...item, quantity: newQuantity };
+      })
       .filter((item) => item.quantity > 0));
   };
 
