@@ -93,50 +93,74 @@ const GA4_EVENT_MAP: Record<AnalyticsEventName, (payload: Record<string, unknown
 const QUIZ_DEFAULT = { step1: '', step2: '', step3: '' };
 
 type BackendProduct = {
-  id: string;
-  sku: string;
+  id: string | number;
+  sku?: string;
   name: string;
   slug?: string;
   concentration?: string;
   price: number;
   stockQuantity?: number;
+  stock?: number;
   topNotes?: string;
   heartNotes?: string;
   baseNotes?: string;
+  category?: string;
+  scentType?: string;
   imageUrl?: string;
+  image?: string;
+  desc?: string;
+  description?: string;
   isActive?: boolean;
 };
 
 function mapBackendProduct(item: BackendProduct, fallbackList: Product[]): Product {
-  const fallback = fallbackList.find((p) => p.name.toLowerCase() === item.name.toLowerCase()) || fallbackList[0];
-  const scentType =
-    item.slug === 'aether' ? 'Fresh' :
-    item.slug === 'ignis' ? 'Woody' :
-    item.slug === 'nox' ? 'Floral' :
-    item.slug === 'terra' ? 'Woody' :
-    fallback?.scentType || 'Fresh';
+  const fallback = fallbackList.find(
+    (p) => p.name.toLowerCase() === item.name.toLowerCase() || (item.slug && p.slug === item.slug)
+  );
+
+  let scentType = item.scentType || item.category || fallback?.scentType;
+  if (!scentType) {
+    const combined = `${item.name} ${item.topNotes || ''} ${item.heartNotes || ''} ${item.baseNotes || ''}`.toLowerCase();
+    if (combined.includes('rose') || combined.includes('floral') || combined.includes('jasmine')) {
+      scentType = 'Floral';
+    } else if (
+      combined.includes('citrus') ||
+      combined.includes('bergamot') ||
+      combined.includes('fresh') ||
+      combined.includes('marine') ||
+      combined.includes('sea salt') ||
+      combined.includes('matcha')
+    ) {
+      scentType = 'Fresh';
+    } else {
+      scentType = 'Woody';
+    }
+  }
 
   const notes = [item.topNotes, item.heartNotes, item.baseNotes].filter(Boolean).join(', ') || fallback?.notes || '';
   const image: string = (item.imageUrl && (item.imageUrl.startsWith('http://') || item.imageUrl.startsWith('https://')))
     ? item.imageUrl
-    : (fallback?.imageUrl || fallback?.image || PRODUCTS[0].imageUrl || PRODUCTS[0].image || '');
+    : (item.image && (item.image.startsWith('http://') || item.image.startsWith('https://')))
+    ? item.image
+    : (fallback?.imageUrl || fallback?.image || fallbackList[0]?.imageUrl || '');
 
   return {
+    ...fallback,
     ...item,
-    id: item.id,
-    sku: item.sku,
+    id: String(item.id),
+    sku: item.sku || fallback?.sku || `TW-${item.id}`,
     name: item.name,
-    slug: item.slug || fallback?.slug,
+    slug: item.slug || fallback?.slug || item.name.toLowerCase().replace(/\s+/g, '-'),
     concentration: item.concentration || fallback?.concentration || 'Extrait de Parfum',
     price: Number(item.price),
-    stockQuantity: item.stockQuantity ?? fallback?.stockQuantity ?? fallback?.stock ?? 10,
-    stock: item.stockQuantity ?? fallback?.stockQuantity ?? fallback?.stock ?? 10,
+    stockQuantity: item.stockQuantity ?? item.stock ?? fallback?.stockQuantity ?? 10,
+    stock: item.stockQuantity ?? item.stock ?? fallback?.stock ?? 10,
     imageUrl: image,
     image,
     scentType,
     notes,
     rating: fallback?.rating || 4.9,
-    desc: fallback?.desc || `${item.name} Extrait de Parfum.`,
+    desc: item.desc || item.description || fallback?.desc || `${item.name} Extrait de Parfum karya seni wewangian mewah TWINCE.`,
     aromaPyramid: {
       top: item.topNotes || fallback?.aromaPyramid?.top || 'Top Notes',
       heart: item.heartNotes || fallback?.aromaPyramid?.heart || 'Heart Notes',
@@ -159,7 +183,10 @@ export default function Page() {
     let isMounted = true;
     async function loadDynamicProducts() {
       try {
-        const response = await fetch('http://localhost:8080/api/v1/products');
+        let response = await fetch('http://localhost:8080/api/products');
+        if (!response.ok) {
+          response = await fetch('http://localhost:8080/api/v1/products');
+        }
         if (!response.ok) {
           throw new Error(`Status ${response.status}`);
         }
